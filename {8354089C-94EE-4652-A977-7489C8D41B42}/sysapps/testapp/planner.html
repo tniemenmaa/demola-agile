@@ -1,0 +1,83 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <ul id="left-backlog" class="planner">
+        <li class="release" draggable="false">
+            <select>
+                <option>Release 1</option>
+                <option>Release 2</option>
+                <option>Release 3</option>
+            </select>
+        </li>
+        <li draggable="true" class="userstory" id="story">
+            <span class="group">FEATURE</span>
+            <span class="title">User creates an user story</span>
+        </li>
+        <li draggable="false" class="task" style="padding-left: 40px; display: none;">
+            <span class="group">USER STORY</span>
+            <span class="title">Add create user story button</span>
+        </li>
+
+        <li draggable="false" class="task" style="padding-left: 40px; display:none;">
+            <span class="group">USER STORY</span>
+            <span class="title">Show user story created after submit</span>
+        </li>
+        <li draggable="true" class="userstory">
+            <span class="group">FEATURE</span>
+            <span class="title">User creates task for an user story</span>
+        </li>
+        <li draggable="true" class="userstory">
+            <span class="group">FEATURE</span>
+            <span class="title">User assigns task to a developer</span>
+        </li>
+        <li draggable="true" class="userstory">
+            <span class="group">FEATURE</span>
+            <span class="title">User creates a release</span>
+        </li>
+    </ul>
+    <ul id="right-backlog" class="planner">
+        <li class="release" draggable="false">
+            <select>
+                <option>Uncommitted Backlog</option>
+                <option>Release 1</option>
+                <option>Release 2</option>
+                <option>Release 3</option>
+            </select>
+        </li>
+        <li draggable="true" class="userstory" id="story">
+            <span class="group">FEATURE</span>
+            <span class="title">User creates an user story</span>
+        </li>
+        <li draggable="false" class="task" style="padding-left: 40px; display: none;">
+            <span class="group">USER STORY</span>
+            <span class="title">Add create user story button</span>
+        </li>
+
+        <li draggable="false" class="task" style="padding-left: 40px; display:none;">
+            <span class="group">USER STORY</span>
+            <span class="title">Show user story created after submit</span>
+        </li>
+        <li draggable="true" class="userstory">
+            <span class="group">FEATURE</span>
+            <span class="title">User creates task for an user story</span>
+        </li>
+        <li draggable="true" class="userstory">
+            <span class="group">FEATURE</span>
+            <span class="title">User assigns task to a developer</span>
+        </li>
+        <li draggable="true" class="userstory">
+            <span class="group">FEATURE</span>
+            <span class="title">User creates a release</span>
+        </li>
+    </ul>
+    <script type="text/javascript" src="jquery-3.1.1.min.js"></script>
+    <script type="text/javascript" src="jquery-ui.min.js"></script>
+    <script type="text/javascript" src="planner.js"></script>
+</body>
+</html>
