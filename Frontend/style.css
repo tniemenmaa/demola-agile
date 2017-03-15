@@ -1,0 +1,97 @@
+﻿html, body
+{
+    padding: 0;
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 10pt;
+}
+.planner {
+    margin-right: 5px;
+    padding: 0;
+    width: 49%; float:left;
+    min-height: 500px;
+}
+.userstories {
+    margin: 0 0 0 10px;
+    padding: 0;
+    width: 100%;
+}
+.planner li {
+    width: 100%;
+    background-color: #fff;
+    list-style: none;
+    margin: 0;
+    padding: 4px 8px;
+    border-bottom: 1px solid #ccc;
+    border-right: 1px solid #888;
+}
+
+.planner li:first-child {
+    margin-top: 4px;
+    border-top: 1px solid #ccc;
+}
+
+.planner li:last-child {
+}
+
+.planner li.release {
+    background-color: rgb(0, 125,198);
+    color: #fff;
+}
+.planner li > .group {
+    font-weight: normal;
+    border-radius: 8px;
+    font-size: 8pt;
+    font-weight: bolder;
+    color: #fff;
+    margin-right: 20px;
+    padding: 2px 4px;
+}
+.planner li > .title {
+    font-weight: bold;
+    padding: 4px 8px;
+    width: 70%;
+}
+
+.userstory, .feature, .sprint {
+    cursor: pointer;
+    overflow: hidden;
+}
+
+li.userstory {
+    margin-left: 15px;
+    background: #d9d9db;
+}
+
+.feature > .group {
+    background: #009430;
+}
+.userstory > .group {
+    background: #f5c617;
+}
+.task > .group {
+    background: #0ae2ea;
+}
+.collapsable:not(.collapsed) {
+    padding-bottom: 0;
+}
+.collapsed > ul {
+    display: none;
+}
+
+span.storypoints {
+    font-weight: bold;
+}
+span.storypoints > i {
+    margin-right: 4px;
+}
+@media screen and (max-width: 800px) {
+    #right-backlog {
+        margin: 0;
+        padding: 0;
+        display: none;
+    }
+    #left-backlog {
+        width: 100%;
+    }
+}
