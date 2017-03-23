@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<application
+			type="server-application"
+			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+			xsi:noNamespaceSchemaLocation="http://www.m-files.com/schemas/appdef-server-v1.xsd">
+  <guid>5b717c86-cba5-4dd0-b4b7-cd5a41361fe2</guid>
+  <name>MFAgilePMVaultApp</name>
+  <description>MFAgilePMVaultApp</description>
+  <publisher></publisher>
+  <version>0.0.0.1</version>
+  <copyright></copyright>
+  <extension-objects>
+    <extension-object>
+      <name>MFAgilePMVaultApp</name>
+      <assembly>MFAgilePMVaultApp.dll</assembly>
+      <class>MFAgilePMVaultApp.VaultApplication</class>
+      <installation-method>Install</installation-method>
+      <uninstallation-method>Uninstall</uninstallation-method>
+      <initialization-method>Initialize</initialization-method>
+      <uninitialization-method>Uninitialize</uninitialization-method>
+      <start-operations-method>StartOperations</start-operations-method>
+    </extension-object>
+  </extension-objects>
+</application>
