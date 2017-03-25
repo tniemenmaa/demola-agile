@@ -34,6 +34,9 @@
 .planner li:last-child {
 }
 
+.planner li.backlog {
+
+}
 .planner li.release {
     background-color: rgb(0, 125,198);
     color: #fff;

@@ -9,6 +9,10 @@ $(function () {
     {
         connectWith: '.userstories'
     });
+    $(".backlogs").sortable(
+    {
+        connectWith: '.backlogs'
+    });
     $(".tasks").sortable();
 
     $('.collapsable > .fa-plus-square-o').click(function () {
