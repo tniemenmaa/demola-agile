@@ -18,137 +18,35 @@
         
         1: Commited backlog with list of sprints
         2: Uncommitted backlog with list of uncommited features-->
-    <ul id="left-backlog" class="features planner">
-        <li draggable="true" class="feature collapsable collapsed" id="story">
-            <i class="fa fa-plus-square-o collapse" aria-hidden="true"></i>
-            <span class="title">User stories</span>
-            <ul class="userstories">
-                <li class="userstory">
-                    <i class="fa fa-plus-square-o collapse" aria-hidden="true"></i>
-                    <!--<span class="group">USER STORY</span>-->
-                    <span class="title">User creates an user story</span>
-                    <span class="storypoints"><i class="fa fa-trophy" aria-hidden="true"></i>4</span>
-                </li>
-                <li class="userstory">
-                    <i class="fa fa-plus-square-o collapse" aria-hidden="true"></i>
-                    <!--<span class="group">USER STORY</span>-->
-                    <span class="title">User removes an user story</span>
-                </li>
-            </ul>
-        </li>
-        <li draggable="true" class="feature collapsable collapsed" id="story">
-            <i class="fa fa-plus-square-o collapse" aria-hidden="true"></i>
-            <span class="title">Features</span>
-            <ul class="userstories">
-                <li class="userstory collapsable collapsed">
-                    <i class="fa fa-plus-square-o collapse" aria-hidden="true"></i>
-                    <!--<span class="group">USER STORY</span>-->
-                    <span class="title">User creates a feature</span>
-                    <ul class="tasks">
-                        <li class="task">
-                            <i class="fa fa-plus-square-o collapse" aria-hidden="true"></i>
-                            <!--<span class="group">USER STORY</span>-->
-                            <span class="title">Button for creating features</span>
-                        </li>
-                        <li class="task">
-                            <i class="fa fa-plus-square-o collapse" aria-hidden="true"></i>
-                            <!--<span class="group">USER STORY</span>-->
-                            <span class="title">Backend functionality</span>
-                        </li>
-                        <li class="task">
-                            <i class="fa fa-plus-square-o collapse" aria-hidden="true"></i>
-                            <!--<span class="group">USER STORY</span>-->
-                            <span class="title">Testing</span>
-                        </li>
-                    </ul>
-                </li>
-                <li class="userstory">
-                    <i class="fa fa-plus-square-o collapse" aria-hidden="true"></i>
-                    <!--<span class="group">USER STORY</span>-->
-                    <span class="title">User removes a feature</span>
-                </li>
-            </ul>
-        </li>
-
-    </ul>
-
-    <!-- Right Column-->
-    <ul id="right-backlog" class="backlogs planner">
-        <li draggable="true" class="backlog collapsable collapsed">
-            <i class="fa fa-plus-square-o collapse" aria-hidden="true"></i>
-            <span class="title">Release 1.0</span>
-            <ul class="features">
-                No features added
-            </ul>
-        </li>
-        <li draggable="true" class="backlog collapsable collapsed">
-            <i class="fa fa-plus-square-o collapse" aria-hidden="true"></i>
-            <span class="title">Release 1.1</span>
-            <ul class="features">
-                No features added
-            </ul>
-        </li>
-    </ul>
-
-            <!--
-            <ul id="right-backlog" class="sprints planner">
-                    <li class="sprint collapsable collapsed">
-                        <i class="fa fa-plus-square-o" aria-hidden="true"></i>
-                        <span class="title">Sprint 1</span>
-                        <ul class="features">
-                            <li draggable="true" class="feature collapsable collapsed" id="story">
-                                <span class="group">FEATURE</span>
-                                <span class="title">Drag and Drop functionality</span>
-                                <ul class="userstories">
-                                    <li class="userstory">
-                                        <i class="fa fa-plus-square-o" aria-hidden="true"></i>
-                                        <span class="group">USER STORY</span>
-                                        <span class="title">User can reorder items inside backlog</span>
-                                    </li>
-                                    <li class="userstory">
-                                        <i class="fa fa-plus-square-o" aria-hidden="true"></i>
-                                        <span class="group">USER STORY</span>
-                                        <span class="title">User can move items from one backlog to another</span>
-                                    </li>
-                                </ul>
-                            </li>
-                        </ul>
-                    </li>
-                <li class="sprint collapsable collapsed">
-                    <i class="fa fa-plus-square-o" aria-hidden="true"></i>
-                    <span class="title">Sprint 2</span>
-                    <ul class="features">
-                        <li draggable="true" class="feature collapsable collapsed" id="story">
-                            <i class="fa fa-plus-square-o" aria-hidden="true"></i>
-                            <span class="group">FEATURE</span>
-                            <span class="title">Multiple item drag and drop</span>
-                            <ul class="userstories">
-                                <li class="userstory">
-                                    <i class="fa fa-plus-square-o" aria-hidden="true"></i>
-                                    <span class="group">USER STORY</span>
-                                    <span class="title">User can reorder multiple items inside backlog</span>
-                                </li>
-                                <li class="userstory">
-                                    <i class="fa fa-plus-square-o" aria-hidden="true"></i>
-                                    <span class="group">USER STORY</span>
-                                    <span class="title">User can move multiple items from one backlog to another</span>
-                                </li>
-                            </ul>
-                        </li>
-                    </ul>
-                </li>
-                </ul>-->
-            <!--<li class="release" draggable="false">
-                <select>
-                    <option>Uncommitted Backlog</option>
-                    <option>Release 1</option>
-                    <option>Release 2</option>
-                    <option>Release 3</option>
-                </select>
-            </li>-->
-
-            <script type="text/javascript" src="jquery-3.1.1.min.js"></script>
-            <script type="text/javascript" src="jquery-ui.min.js"></script>
-            <script type="text/javascript" src="planner.js"></script>
+    <div id="root">
+        <backlogs id="left-column"></backlogs>
+        <backlogs id="right-column"></backlogs>
+        
+        <!-- Right Column-->
+        <!--<ul id="right-backlog" class="backlogs planner">
+            <li draggable="true" class="backlog collapsable collapsed">
+                <i class="fa fa-plus-square-o collapse" aria-hidden="true"></i>
+                <span class="title">Release 1.0</span>
+                <ul class="features">
+                    No features added
+                </ul>
+            </li>
+            <li draggable="true" class="backlog collapsable collapsed">
+                <i class="fa fa-plus-square-o collapse" aria-hidden="true"></i>
+                <span class="title">Release 1.1</span>
+                <ul class="features">
+                    No features added
+                </ul>
+            </li>
+        </ul>-->
+    </div>
+    <!-- TODO: Replace with downloaded vue lib -->    
+    <script src="https://unpkg.com/vue"></script>
+    <script type="text/javascript" src="sortable.min.js"></script>
+    <script type="text/javascript" src="vuedraggable.js"></script>
+    <script type="text/javascript" src="jquery-3.1.1.min.js"></script>
+    <script type="text/javascript" src="jquery-ui.min.js"></script>
+    <script type="text/javascript" src="data-controller.js"></script>
+    <script type="text/javascript" src="planner.js"></script>
 </body>
 </html>

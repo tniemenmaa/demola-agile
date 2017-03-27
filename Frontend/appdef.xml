@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <application xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.m-files.com/schemas/appdef.xsd">
-  <guid>1BCE76A7-56ED-4899-87DD-629809D6F101</guid>
+  <guid>1BCE76A7-56ED-4899-87DD-629809D6F105</guid>
   <!-- // 1BCE76A7-56ED-4899-87DD-629809D6F101 -->
-  <name>Test application</name>
-  <version>1.1</version>
-  <description>M-Files DMS Home Screen (Customized)</description>
+  <name>Agile Project Management Tool</name>
+  <version>1.2</version>
+  <description>Demola Project for M-Files Agile Project Management</description>
   <publisher>M-Files Corporation</publisher>
   <copyright>(c) M-Files Corporation</copyright>
   <required-mfiles-version>10.0.3911.0</required-mfiles-version>
