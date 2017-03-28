@@ -99,6 +99,15 @@ namespace MFAgilePMVaultApp
             return isObject;
         }
 
+        public static SearchCondition isOwner(int ownerPropertyDef, object ownerId)
+        {
+            SearchCondition isOwner = new SearchCondition();
+            isOwner.Expression.DataPropertyValuePropertyDef = ownerPropertyDef;
+            isOwner.ConditionType = MFConditionType.MFConditionTypeEqual;
+            isOwner.TypedValue.SetValue(MFDataType.MFDatatypeLookup, ownerId);
+            return isOwner;
+        }
+
         public static SearchCondition searchConditionID(int id)
         {
             SearchCondition isID = new SearchCondition();
