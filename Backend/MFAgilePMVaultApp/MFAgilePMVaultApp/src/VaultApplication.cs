@@ -45,10 +45,10 @@ namespace MFAgilePMVaultApp
             this.BackgroundOperations.StartRecurringBackgroundOperation("Recurring Hello World Operation", TimeSpan.FromSeconds(10), () =>
              {
                     // Prepare input for the extension method.
-                    string input = "Hello from MFAgilePMVaultApp";
+                    string input = "{'id': '1'}";
 
                     // Execute the extension method. Wrapping code to an extension method ensures transactionality for the vault operations.
-                    string output = this.PermanentVault.ExtensionMethodOperations.ExecuteVaultExtensionMethod("GetObjectList", input);
+                    string output = this.PermanentVault.ExtensionMethodOperations.ExecuteVaultExtensionMethod("GetUserStoriesByFeatureWithTasks", input);
 
                     // Report extension method output to event log.
                     SysUtils.ReportInfoToEventLog(output);
@@ -61,20 +61,11 @@ namespace MFAgilePMVaultApp
         /// </summary>
         /// <param name="env">The event handler environment for the method.</param>
         /// <returns>The output string to the caller.</returns>
-        [VaultExtensionMethod("GetObjectList", RequiredVaultAccess = MFVaultAccess.MFVaultAccessNone)]
-        private string GetObjectList(EventHandlerEnvironment env)
+        [VaultExtensionMethod("GetProducts", RequiredVaultAccess = MFVaultAccess.MFVaultAccessNone)]
+        private string GetProducts(EventHandlerEnvironment env)
         {
             Vault v = env.Vault;
-            // env.Input = {"objectclass": "<Object_Class_Alias>"}
-
-            JObject jo = JObject.Parse(@"{
-                'ObjectClass': 'MF.OC.Product'
-            }");
-
-
-            // JObject o = JObject.Parse(env.Input);
-
-
+ 
             /* JSON parsing example
              http://www.newtonsoft.com/json/help/html/SelectToken.htm
 
@@ -121,33 +112,23 @@ namespace MFAgilePMVaultApp
             */
 
 
+            string jsonQuery = @"{
+                'ObjectClass': 'MF.OC.Product'
+            }";
 
-            string ocAlias = (string)jo.SelectToken("ObjectClass");
 
-            SearchConditions scs = new SearchConditions();
-            scs.Add(0, MFSearchUtils.isObjectClass(v.ClassOperations.GetObjectClassIDByAlias(ocAlias)));
+            // JObject o = JObject.Parse(env.Input);
 
-            ObjectSearchResults osr = MFSearchUtils.SearchForObjectsByConditions(v, scs);
-            ObjVers objVers = osr.ObjectVersions.GetAsObjVers();
-            PropertyValuesOfMultipleObjects pvomo = v.ObjectPropertyOperations.GetPropertiesOfMultipleObjects(objVers);
+            PropertyValuesOfMultipleObjects pvomo = GetPropertyValuesOfObjects(v, jsonQuery);
 
             List<Product> plist = new List<Product>();
 
             foreach ( PropertyValues pvs in pvomo)
             {
                 // Build a list with the objects as needed according to the DataModel
-                switch (ocAlias)
-                {
-                    case "MF.OC.Product":
-                        Product p = new Product();
-                        p.NameOrTitle = MFSearchUtils.getPropertyDisplayValue(pvs, 0);
-                        plist.Add(p);
-                        break;
-                    default:
-                        break;
-                }
-                
-                   
+                Product p = new Product();
+                p.NameOrTitle = MFSearchUtils.getPropertyDisplayValue(pvs, 0);
+                plist.Add(p);              
             }
 
             // Serialize the product list
@@ -157,6 +138,119 @@ namespace MFAgilePMVaultApp
         }
 
 
+        /// <summary>
+        /// A vault extension method, that will be installed to the vault with the application.
+        /// The vault extension method can be called through the API.
+        /// </summary>
+        /// <param name="env">The event handler environment for the method.</param>
+        /// <returns>The output string to the caller.</returns>
+        [VaultExtensionMethod("GetBacklogs", RequiredVaultAccess = MFVaultAccess.MFVaultAccessNone)]
+        private string GetBacklogs(EventHandlerEnvironment env)
+        {
+            Vault v = env.Vault;
+
+            string jsonQuery = @"{
+                'ObjectClass': 'MF.OC.Backlog',
+                'ObjectOwnerClass': 'MF.OC.Product',
+                'OwnerId': '1'
+            }";
+
+
+            // JObject o = JObject.Parse(env.Input);
+
+            PropertyValuesOfMultipleObjects pvomo = GetPropertyValuesOfObjects(v, jsonQuery);
+
+            List<Product> plist = new List<Product>();
+
+            foreach (PropertyValues pvs in pvomo)
+            {
+                // Build a list with the objects as needed according to the DataModel
+                //Product p = new Product();
+                string NameOrTitle = MFSearchUtils.getPropertyDisplayValue(pvs, 0);
+                //plist.Add(p);
+
+ 
+            }
+
+            // Serialize the product list
+            string jsonString = Newtonsoft.Json.JsonConvert.SerializeObject(plist);
+            return jsonString;
+
+        }
+
+
+        /// <summary>
+        /// A vault extension method, that will be installed to the vault with the application.
+        /// The vault extension method can be called through the API.
+        /// </summary>
+        /// <param name="env">The event handler environment for the method.</param>
+        /// <returns>The output string to the caller.</returns>
+        [VaultExtensionMethod("GetUserStoriesByFeatureWithTasks", RequiredVaultAccess = MFVaultAccess.MFVaultAccessNone)]
+        private string GetUserStoriesByFeatureWithTasks(EventHandlerEnvironment env)
+        {
+
+            Vault v = env.Vault;
+            
+            string jsonQuery = @"{
+                'ObjectClass': 'MF.OC.UserStory',
+                'ObjectOwnerClass': 'MF.OC.Backlog',
+                'OwnerId': '1'
+            }";
+
+
+            // JObject o = JObject.Parse(env.Input);
+
+            PropertyValuesOfMultipleObjects pvomo = GetPropertyValuesOfObjects(v, jsonQuery);
+
+            List<Product> plist = new List<Product>();
+
+            foreach (PropertyValues pvs in pvomo)
+            {
+                // Build a list with the objects as needed according to the DataModel
+                //Product p = new Product();
+                string NameOrTitle = MFSearchUtils.getPropertyDisplayValue(pvs, 0);
+                //plist.Add(p);
+
+
+            }
+
+            // Serialize the product list
+            string jsonString = Newtonsoft.Json.JsonConvert.SerializeObject(plist);
+            return jsonString;
+
+        }
+
+
+        private PropertyValuesOfMultipleObjects GetPropertyValuesOfObjects(Vault v, string jsonQuery)
+        {
+            JObject jo = JObject.Parse(jsonQuery);
+            string ocAlias = (string)jo.SelectToken("ObjectClass");
+            string oocAlias = (string)jo.SelectToken("ObjectOwnerClass");
+            object ownerId = Convert.ToInt32(jo.SelectToken("OwnerId"));
+
+            SearchConditions scs = new SearchConditions();
+
+            int objClassId = v.ClassOperations.GetObjectClassIDByAlias(ocAlias);
+            scs.Add(-1, MFSearchUtils.isObjectClass(objClassId));
+
+            // Some searches do not require owner filter
+            if (ocAlias != null && oocAlias != null)
+            {
+                int objOwnerClassId = v.ClassOperations.GetObjectClassIDByAlias(oocAlias);
+                ObjectClass oc = v.ClassOperations.GetObjectClass(objOwnerClassId);
+                ObjType ot = v.ObjectTypeOperations.GetObjectType(oc.ObjectType);
+                int ownerPropDef = ot.OwnerPropertyDef;
+                scs.Add(-1, MFSearchUtils.isOwner(ownerPropDef, ownerId));
+            }
+
+            ObjectSearchResults osr = MFSearchUtils.SearchForObjectsByConditions(v, scs);
+
+
+            ObjVers objVers = osr.ObjectVersions.GetAsObjVers();
+            PropertyValuesOfMultipleObjects pvomo = v.ObjectPropertyOperations.GetPropertiesOfMultipleObjects(objVers);
+
+            return pvomo;
+        }
 
         /*
         Function SearchForObjectsByClass(ByVal MyClassID)
