@@ -26,7 +26,7 @@ function onKeyUp(e) {
 
 // Create a global event bus
 Object.defineProperty(Vue.prototype, '$bus', {
-    get() {
+    get: function() {
         return this.$root.bus;
     }
 });
@@ -81,7 +81,7 @@ Vue.component('userstories', {
         }
     },
     computed: {
-        draggableOptions() {
+        draggableOptions: function() {
             return {
                 group: 'userstories',
                 ghostClass: 'ghost'
@@ -137,7 +137,7 @@ Vue.component('features', {
         }
     },
     computed: {
-        draggableOptions() {
+        draggableOptions: function() {
             return {
                 group: 'features',
                 ghostClass: 'hidden'
@@ -195,7 +195,7 @@ Vue.component('backlogs', {
         }
     },
     computed: {
-        draggableOptions () {
+        draggableOptions: function () {
             return {
                 group: 'backlogs',
                 ghostClass: 'ghost'
