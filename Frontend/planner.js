@@ -36,6 +36,7 @@ Vue.component('tasks', {
     template:
         '<draggable class="tasks" element="ul" v-model="userstory.tasks"> \
             <li @click="select($event, index)" v-for="(task, index) in userstory.tasks" draggable="true" :class="{ task: true, collapsable: true, collapsed: task.collapsed, selected: task.selected }" id="story"> \
+                <span class="group">TASK</span>  \
                 <span class="title">{{ task.name }}</span> \
             </li> \
             <li @click="select($event, null)" v-if="!userstory.tasks || userstory.tasks.length === 0"><span class="no-items">There are no tasks in this userstory</span></li> \
@@ -59,6 +60,7 @@ Vue.component('userstories', {
         '<draggable class="userstories" element="ul" v-model="feature.userstories" :options="draggableOptions"> \
             <li @click="select($event, index)" v-for="(userstory, index) in feature.userstories" draggable="true" :class="{ userstory: true, collapsable: true, collapsed: userstory.collapsed, selected: userstory.selected }" id="story"> \
                 <i @click="collapse($event, index)" :class="collapseClasses(index)" aria-hidden="true"></i> \
+                <span class="group">USERSTORY</span>  \
                 <span class="title">{{ userstory.name }}</span> \
                 <tasks v-bind:userstory="userstory"></tasks> \
             </li> \
@@ -93,6 +95,7 @@ Vue.component('features', {
         '<draggable class="features" element="ul" v-model="features" :options="draggableOptions"> \
             <li @click="select($event, index)" v-for="(feature, index) in features" draggable="true" :class="{ feature: true, collapsable: true, collapsed: feature.collapsed, selected: feature.selected }" id="story"> \
                 <i @click="collapse($event, index)" :class="collapseClasses(index)" aria-hidden="true"></i> \
+                <span class="group">FEATURE</span>  \
                 <span class="title">{{ feature.name }}</span> \
                 <userstories v-bind:feature="feature"></userstories> \
             </li> \
@@ -145,19 +148,24 @@ Vue.component('features', {
 
 Vue.component('backlogs', {
     template:
-        '<draggable class="backlogs planner" element="ul" v-model="backlogs" :options="draggableOptions"> \
-            <li @click="select($event, index)" v-for="(backlog, index) in backlogs" draggable="true" id="story" :class="{ backlog: true, collapsable: true, collapsed: backlog.collapsed, selected: backlog.selected }" > \
-                <i @click="collapse($event, index)" :class="collapseClasses(index)" aria-hidden="true"></i> \
-                <span class="title">{{ backlog.name }}</span> \
-                <features v-bind:backlog="backlog"></features> \
-            </li> \
-         </draggable>',
-    data: function () {
+        '<div> \
+            <h4 class="content-header">{{ header }}</h4> \
+            <draggable class="backlogs planner" element="ul" v-model="backlogs" :options="draggableOptions"> \
+                <li @click="select($event, index)" v-for="(backlog, index) in backlogs" draggable="true" id="story" :class="{ backlog: true, collapsable: true, collapsed: backlog.collapsed, selected: backlog.selected }" > \
+                    <i @click="collapse($event, index)" :class="collapseClasses(index)" aria-hidden="true"></i> \ \
+                    <span class="title">{{ backlog.name }}</span> \
+                    <features v-bind:backlog="backlog"></features> \
+                </li> \
+             </draggable> \
+         </div>',
+    data: function () { 
         return {
             backlogs: MFiles.methods.getBacklogs(),
-            lastSelection: null
+            lastSelection: null,
+            header: 'Planner'
         }
     },
+    props: ['header'],
     methods: {
         collapse: function (event, index) {
             event.stopPropagation();
