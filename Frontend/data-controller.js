@@ -1,72 +1,12 @@
 // Mockup data controller
 var dummy = 1;
+var randomStoryPoints = function() {
+    return Math.round(Math.random() * 9) + 1;
+
+}
 var MFiles = {
     methods: {
-        // Get all backlogs
-        getUncommittedBacklog: function () {
-            return [
-                {
-                    id: '956e00e2-4c84-4841-bf5c-a2d6509d7dcb',
-                    name: 'Uncommitted feature 1',
-                    description: 'We should use M-Files typography and icons to make our application feel more integrated to M-Files',
-                    collapsed: true,
-                    selected: false,
-                    userstories: [
-                        {
-                            id: 'cfeccd08-a327-4fdd-a971-d6ecc76bb6bb',
-                            name: 'Uncommitted userstory 1',
-                            description: '',
-                            collapsed: true,
-                            selected: false
-                        },
-                        {
-                            id: 'cfeccd08-a327-4fdd-a971-d6ecc76bb6bb',
-                            name: 'Uncommitted userstory 2',
-                            description: '',
-                            collapsed: true,
-                            selected: false
-                        },
-                        {
-                            id: 'cfeccd08-a327-4fdd-a971-d6ecc76bb6bb',
-                            name: 'Uncommitted userstory 3',
-                            description: '',
-                            collapsed: true,
-                            selected: false
-                        }
-                    ]
-                },
-                {
-                    id: '956e00e2-4c84-4841-bf5c-a2d6509d7dcb',
-                    name: 'Uncommitted feature 2',
-                    description: 'We should use M-Files typography and icons to make our application feel more integrated to M-Files',
-                    collapsed: true,
-                    selected: false,
-                    userstories: [
-                        {
-                            id: 'cfeccd08-a327-4fdd-a971-d6ecc76bb6bb',
-                            name: 'Uncommitted userstory 4',
-                            description: '',
-                            collapsed: true,
-                            selected: false
-                        },
-                        {
-                            id: 'cfeccd08-a327-4fdd-a971-d6ecc76bb6bb',
-                            name: 'Uncommitted userstory 5',
-                            description: '',
-                            collapsed: true,
-                            selected: false
-                        },
-                        {
-                            id: 'cfeccd08-a327-4fdd-a971-d6ecc76bb6bb',
-                            name: 'Uncommitted userstory 6',
-                            description: '',
-                            collapsed: true,
-                            selected: false
-                        }
-                    ]
-                }
-            ]
-        },
+        
         getBacklogs: function () {
             if (dummy < 4) {
                 dummy += 2;
@@ -146,68 +86,273 @@ var MFiles = {
         // Get features for backlog
 
         getFeatures: function (guid) {
-            console.log('getFeatures(' + guid + ')');
+            /*console.log('getFeatures(' + guid + ')');
             if (guid === '16f218f5-bb95-4e71-b227-8c81b1e5792') {
                 console.log('GetUncommitted');
                 return MFiles.methods.getUncommittedBacklog();
-            }
-            else {
+            }*/
+            if (true) {
                 return [
                     {
-                        id: '956e00e2-4c84-4841-bf5c-a2d6509d7dcb',
-                        name: 'M-Files look and feel',
-                        description: 'We should use M-Files typography and icons to make our application feel more integrated to M-Files',
+                        backlogId: 'cfeccd08-a327-4fdd-a971-d6ecc76bb6bb',
+                        id: '54',
+                        name: 'Household work',
+                        description: '',
                         collapsed: true,
                         selected: false,
                         userstories: [
                             {
-                                id: '284fdf9c-ee8c-4741-922c-dfa0588234f5',
-                                name: 'Get available icons from Mikko',
-                                description: 'Get M-Files icon set as JPEG or PNG format so we can use same icon set for our application.',
-                                collapsed: true,
-                                selected: false,
-
-                            },
-                            {
-                                id: '996f69a2-fe6a-435d-9b23-18ac938d052b',
-                                name: 'Choose icons for objects',
-                                description: 'Choose what icons would best represent feature, userstory, task, sprint, backlog etc.',
-                                collapsed: true,
-                                selected: false,
-                            },
-                            {
-                                id: 'f5c1518a-aab9-4445-8ffd-7c8ba7337f5c',
-                                name: 'Gather basic details of M-Files UI to make our UI similar',
+                                id: '425',
+                                name: 'Clean up the kitch',
                                 description: '',
                                 collapsed: true,
                                 selected: false,
-                            }
+                                points: randomStoryPoints(),
+                                tasks: [
+                                    {
+                                        id: '1125',
+                                        name: 'Take out the trash',
+                                        description: ''
+                                    },
+                                    {
+                                        id: '1126',
+                                        name: 'Clean the sink',
+                                        description: ''
+                                    }
+                                ]
+
+                            },
+                            {
+                                id: '511',
+                                name: 'House repairs',
+                                description: 'Choose what icons would best represent feature, userstory, task, sprint, backlog etc.',
+                                collapsed: true,
+                                selected: false,
+                                points: randomStoryPoints(),
+                                tasks: [
+                                    {
+                                        id: '1301',
+                                        name: 'Paint the living room walls',
+                                        description: '',
+                                        selected: false
+                                    },
+                                    {
+                                        id: '1333',
+                                        name: 'Call the mainentenance to fix broken heater',
+                                        description: '',
+                                        selected: false
+                                    }
+                                ]
+                            },
                         ]
                     },
                     {
-                        id: 'a2d4c7a1-f58f-45c7-9f74-7102830aa684',
-                        name: 'Attach UI to M-Files Vault Application',
+                        backlogId: 'cfeccd08-a327-4fdd-a971-d6ecc76bb6bb',
+                        id: '63',
+                        name: 'Studies',
                         description: 'Work that needs to be done to get our application to talk with M-Files system.',
                         collapsed: true,
                         selected: false,
                         userstories: [
                             {
-                                id: '68f4ab4f-aed5-47a5-bd50-2ef05baed2c4',
-                                name: 'Create initial UI with mock data',
+                                id: '583',
+                                name: 'TIE-23506 Web Software Development',
                                 description: 'Just basic UI elements with mock data that can be replaced with actual data later. Don\'t focus too much on refining it just basic setup so we can get some feedback from the customer.',
                                 collapsed: true,
-                                selected: false
+                                selected: false,
+                                points: randomStoryPoints(),
+                                tasks: [
+                                    {
+                                        id: '1894',
+                                        name: 'Weekly exercise 1',
+                                        description: '',
+                                        Selected: false
+                                    },
+                                    {
+                                        id: '1895',
+                                        name: 'Weekly exercise 2',
+                                        description: '',
+                                        Selected: false
+                                    },
+                                    {
+                                        id: '1896',
+                                        name: 'Weekly exercise 3',
+                                        description: '',
+                                        Selected: false
+                                    },
+                                    {
+                                        id: '1897',
+                                        name: 'Weekly exercise 4',
+                                        description: '',
+                                        Selected: false
+                                    },
+                                    {
+                                        id: '1894',
+                                        name: 'Course assignment',
+                                        description: '',
+                                        Selected: false
+                                    },
+                                    {
+                                        id: '1894',
+                                        name: 'Study for exam',
+                                        description: '',
+                                        Selected: false
+                                    },
+                                ]
                             },
                             {
-                                id: '00cd9ae5-caa6-4662-92d9-73b18025dc5c',
-                                name: 'VAF Setup',
+                                id: '584',
+                                name: 'TST-01606 Demola Project Work',
                                 description: 'Vault application framework project setup',
                                 collapsed: true,
-                                selected: false
+                                selected: false,
+                                points: randomStoryPoints(),
+                                tasks: [
+                                    {
+                                        id: '1994',
+                                        name: 'Weekly meeting (5.4.2017)',
+                                        description: '',
+                                        Selected: false
+                                    },
+                                    {
+                                        id: '1995',
+                                        name: 'Weekly meeting (19.4.2017)',
+                                        description: '',
+                                        Selected: false
+                                    },
+                                    {
+                                        id: '1996',
+                                        name: 'Partner meeting (10.4.2017)',
+                                        description: '',
+                                        Selected: false
+                                    },
+                                    {
+                                        id: '2000',
+                                        name: 'Demola Pitching event (3.4.2017)',
+                                        description: '',
+                                        Selected: false
+                                    }
+                                ]
                             }
                         ]
-                    }
-                ]
+                    },
+                    {
+                        backlogId: '16f218f5-bb95-4e71-b227-8c81b1e5792',
+                        id: '64',
+                        name: 'Finances',
+                        description: 'We should use M-Files typography and icons to make our application feel more integrated to M-Files',
+                        collapsed: true,
+                        selected: false,
+                        userstories: [
+                            {
+                                id: '592',
+                                name: 'Bills',
+                                description: '',
+                                collapsed: true,
+                                selected: false,
+                                points: randomStoryPoints(),
+                                tasks: 
+                                    [
+                                        {
+                                            id: '2022',
+                                            name: 'Pay rent',
+                                            description: '',
+                                            selected: false
+                                        },
+                                        {
+                                            id: '2023',
+                                            name: 'Pay electric bill',
+                                            description: '',
+                                            selected: false
+                                        }
+                                    ]
+                            },
+                            {
+                                id: '593',
+                                name: 'Other',
+                                description: '',
+                                collapsed: true,
+                                selected: false,
+                                points: randomStoryPoints(),
+                                tasks:
+                                    [
+                                        {
+                                            id: '2024',
+                                            name: 'Apply for student aid',
+                                            description: '',
+                                            selected: false
+                                        }
+                                    ]
+                            }
+                        ]
+                    },
+                {
+                    backlogId: '16f218f5-bb95-4e71-b227-8c81b1e5792',
+                    id: '65',
+                    name: 'Summer job',
+                    description: 'We should use M-Files typography and icons to make our application feel more integrated to M-Files',
+                    collapsed: true,
+                    selected: false,
+                    userstories: [
+                        {
+                            id: '594',
+                            name: 'Create kick ass job application',
+                            description: '',
+                            collapsed: true,
+                            selected: false,
+                            points: randomStoryPoints(),
+                            tasks:
+                                [
+                                    {
+                                        id: '2028',
+                                        name: 'Create CV',
+                                        description: '',
+                                        selected: false
+                                    },
+                                    {
+                                        id: '2029',
+                                        name: 'Create a template email for job application',
+                                        description: '',
+                                        selected: false
+                                    },
+                                ]
+
+                        },
+                        {
+                            id: '598',
+                            name: 'Events',
+                            description: '',
+                            collapsed: true,
+                            selected: false,
+                            points: randomStoryPoints(),
+                            tasks:
+                                [
+                                    {
+                                        id: '2030',
+                                        name: 'IT Hekuma',
+                                        description: '',
+                                        selected: false
+                                    },
+                                    {
+                                        id: '2031',
+                                        name: 'RecruIT Tampere',
+                                        description: '',
+                                        selected: false
+                                    },
+                                ]
+
+                        },
+                        {
+                            id: '599',
+                            name: 'Applications',
+                            description: '',
+                            collapsed: true,
+                            selected: false,
+                            points: 0,
+                        }
+                    ]
+                }
+                ].filter(function(obj) { return obj.backlogId === guid })
             }
         }
 

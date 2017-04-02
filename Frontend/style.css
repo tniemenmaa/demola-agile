@@ -35,16 +35,16 @@
     background-color: #007dc6;
 }
 .userstories {
-    margin: 0 0 0 10px;
+    margin: 0;
     padding: 0;
     width: 100%;
 }
 .planner li {
     width: 100%;
-    background-color: #fff;
+    background-color: #f8f8f8;
     list-style: none;
     margin: 0;
-    padding: 8px 8px;
+    padding: 8px 0 8px  8px;
     box-sizing: border-box;
     background-image: url('treeline.png');
     background-repeat: no-repeat;
@@ -54,6 +54,31 @@
     border-left: 1px solid #888;*/
 }
 
+.effort {
+    width: 80px;
+    float: right;
+    text-align: center;
+}
+
+.status {
+    width: 160px;
+    float: right;
+    text-align: center;
+    height: 20px;
+    background-image: url('progressbar-dummy.png');
+    background-repeat: no-repeat;
+    background-position-x: 15px;
+    background-position-y: -2px;
+}
+
+.userstory .status, .userstory .effort {
+    padding-left: 15px;
+}
+
+h4 .effort, h4 .status {
+    line-height: 24pt;
+    background-image: none;
+}
 
 .planner li:hover {
     /*background-color: rgba(229, 243, 255, 1);*/
@@ -94,6 +119,10 @@
     overflow: hidden;
 }
 
+.task {
+    margin-bottom: 8px !important;
+}
+
 .backlog {
     background-color: #d9d9d9 !important;
     border-bottom: 1px solid #b3b3b3;
@@ -101,8 +130,14 @@
     padding-right: 0 !important;
 }
 
-.fa {
+.fa-plus-square-o, .fa-minus-square-o, .fa-circle-o, .fa-square-o {
     margin-left: 8px;
+}
+
+.fa-caret-up, .fa-caret-down {
+    margin-left: 8px;
+    font-size: 14pt;
+    color: #616161;
 }
 
 .backlog > .features > .feature:first-child {
@@ -113,6 +148,9 @@
     padding-left: 0;
 }
 
+.tasks {
+    padding-left: 14px;
+}
 li.userstory {
     margin-left: 15px;
     /*background: #d9d9db;*/
@@ -125,7 +163,7 @@ li.userstory {
     background: #64b7eb;
 }
 .task > .group {
-    background: #0ae2ea;
+    background: #b891bf;
 }
 .collapsable:not(.collapsed) {
     padding-bottom: 0;
@@ -135,7 +173,7 @@ li.userstory {
 }
 
 li.selected {
-    background-color: rgb(205,232,255);
+    /*background-color: rgb(205,232,255);*/
 }
 
 span.storypoints {
@@ -144,7 +182,6 @@ span.storypoints {
 span.storypoints > i {
     margin-right: 4px;
 }
-
 span.no-items {
     margin-left: 8px;
     color: #333;
