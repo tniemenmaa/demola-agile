@@ -4,6 +4,17 @@ var randomStoryPoints = function() {
     return Math.round(Math.random() * 9) + 1;
 
 }
+
+// GetBacklogs
+// GetUserStoriesByFeaturesWithTasks
+/*
+{
+    ObjectClass: "MF.OC.UserStory",
+    ObjectOwnerClass: "MF.OC.Backlog",
+    OwnerId: "1" // BacklogId
+}
+*/
+
 var MFiles = {
     methods: {
         
@@ -86,6 +97,32 @@ var MFiles = {
         // Get features for backlog
 
         getFeatures: function (guid) {
+
+            var paramObj = {
+                ObjectClass: "MF.OC.UserStory",
+                ObjectOwnerClass: "MF.OC.Backlog",
+                OwnerId: "1"
+            };
+
+            var result = shellFrame.ShellUI.Vault.ExtensionMethodOperations.ExecuteVaultExtensionMethod(
+                                "GetUserStoriesByFeaturesWithTasks",
+                                JSON.stringify(paramObj));
+
+            var confirm = shellFrame.ShowMessage(
+            {
+                caption: "Rechnung gesplittet!",
+                message: "[" + result + "]",
+                button1_title: "OK"
+            });
+
+            // GetUserStoriesByFeaturesWithTasks
+            /*
+            {
+                ObjectClass: "MF.OC.UserStory",
+                ObjectOwnerClass: "MF.OC.Backlog",
+                OwnerId: "1" // BacklogId
+            }
+            */
             /*console.log('getFeatures(' + guid + ')');
             if (guid === '16f218f5-bb95-4e71-b227-8c81b1e5792') {
                 console.log('GetUncommitted');
@@ -108,6 +145,7 @@ var MFiles = {
                                 collapsed: true,
                                 selected: false,
                                 points: randomStoryPoints(),
+                                status: 100,
                                 tasks: [
                                     {
                                         id: '1125',
@@ -129,6 +167,7 @@ var MFiles = {
                                 collapsed: true,
                                 selected: false,
                                 points: randomStoryPoints(),
+                                status: 100,
                                 tasks: [
                                     {
                                         id: '1301',
@@ -161,6 +200,7 @@ var MFiles = {
                                 collapsed: true,
                                 selected: false,
                                 points: randomStoryPoints(),
+                                status: 100,
                                 tasks: [
                                     {
                                         id: '1894',
@@ -207,6 +247,7 @@ var MFiles = {
                                 collapsed: true,
                                 selected: false,
                                 points: randomStoryPoints(),
+                                status: 100,
                                 tasks: [
                                     {
                                         id: '1994',
@@ -251,6 +292,7 @@ var MFiles = {
                                 collapsed: true,
                                 selected: false,
                                 points: randomStoryPoints(),
+                                status: 100,
                                 tasks: 
                                     [
                                         {
@@ -274,6 +316,7 @@ var MFiles = {
                                 collapsed: true,
                                 selected: false,
                                 points: randomStoryPoints(),
+                                status: 100,
                                 tasks:
                                     [
                                         {
@@ -301,6 +344,7 @@ var MFiles = {
                             collapsed: true,
                             selected: false,
                             points: randomStoryPoints(),
+                            status: 100,
                             tasks:
                                 [
                                     {
@@ -325,6 +369,7 @@ var MFiles = {
                             collapsed: true,
                             selected: false,
                             points: randomStoryPoints(),
+                            status: 100,
                             tasks:
                                 [
                                     {
@@ -349,6 +394,7 @@ var MFiles = {
                             collapsed: true,
                             selected: false,
                             points: 0,
+                            status: 100,
                         }
                     ]
                 }

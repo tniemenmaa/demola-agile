@@ -31,6 +31,27 @@ Object.defineProperty(Vue.prototype, '$bus', {
     }
 });
 
+Vue.component('progressbar', {
+
+    props: ["value"],
+    computed: {
+        precentage: function() {
+            return this.value + " %";
+        },
+        barClass: function () {
+            return "progress-bar style-" + Math.floor(this.value / 10) * 10;
+        },
+        barWidth: function() {
+            return "width: " + this.value + "%"; 
+        }
+    },
+    template: '<div class="progress status"> \
+                    <div :class="barClass" role="progressbar" :style="barWidth"> \
+                        <span>{{ this.precentage }}</span> \
+                    </div> \
+                </div>'
+})
+
 // Components (TODO: Separate to different .js files)
 Vue.component('tasks', {
     template:
@@ -63,13 +84,21 @@ Vue.component('userstories', {
                 <i @click="collapse($event, index)" :class="collapseClasses(index)" aria-hidden="true"></i> \
                 <span class="group">USERSTORY-{{ userstory.id }}</span>  \
                 <span class="title">{{ userstory.name }}</span> \
-                <span class="status"></span> \
+                <progressbar class="" v-bind:value="progress(index)"></progressbar> \
                 <span class="effort">{{ userstory.points }}</span> \
                 <tasks v-bind:userstory="userstory"></tasks> \
             </li> \
             <li v-if="!feature.userstories || feature.userstories.length === 0"><span class="no-items">There are no userstories in this feature</span></li> \
          </draggable>',
     props: ['feature'],
+    data: function()  {
+        return {
+            calculated: false,
+        }
+    },
+    mounted: function() {
+        this.initialCalculations();
+    },
     methods: {
         collapse: function (event, index) {
             event.stopPropagation();
@@ -81,6 +110,22 @@ Vue.component('userstories', {
         },
         collapseClasses: function (index) {
             return this.feature.userstories[index].collapsed ? "fa fa-plus-square-o" : 'fa fa-minus-square-o';
+        },
+        initialCalculations: function () {
+            var that = this;
+            this.feature.userstories.forEach(function (elem, index) {
+                that.progress(index);
+            });
+            this.calculated = true;
+        },
+        progress: function (index) {
+            var value = Math.round(Math.random() * 100);
+            if (!this.calculated) {
+                this.feature.userstories[index].status = value;
+                this.$emit('update', { featureId: this.feature.id, userstory: this.feature.userstories[index] });
+            }
+            return value;
+            // return this.feature.userstories[index].tasks.forEach(function(task) { /* TODO: Calculate done tasks */ })
         }
     },
     computed: {
@@ -92,18 +137,52 @@ Vue.component('userstories', {
         }
     }
 });
+Vue.component('feature', {
+    props: ['feature', 'index'],
+    methods: {
+        collapse: function (event, index) {
+            event.stopPropagation();
+            console.log(this.feature);
+            this.feature.collapsed = !this.feature.collapsed;
+        },
+        collapseClasses: function (index) {
+            return this.feature.collapsed ? "fa fa-plus-square-o" : 'fa fa-minus-square-o';
+        },
+        storypointSum: function (index) {
+            var sum = 0;
+            this.feature.userstories.forEach(function (story) { sum += story.points; });
+            return sum;
+        },
+        progress: function (index) {
+            var sum = 0;
+            this.feature.userstories.forEach(function (story) { sum += story.status ? story.status : 0 });
+            return parseFloat(sum / this.feature.userstories.length).toFixed(0); 
+        },
+        featureUpdate: function (event) {
 
+        }
+    },
+    computed: {
+        draggableOptions: function() {
+            return {
+                group: 'features',
+                ghostClass: 'hidden'
+            }
+        }
+    },
+    template: '<li draggable="true" :class="{ feature: true, collapsable: true, collapsed: feature.collapsed, selected: feature.selected }" id="story"> \
+                    <i @click="collapse($event, index)" :class="collapseClasses(index)" aria-hidden="true"></i> \
+                    <span class="group">FEATURE-{{ feature.id }}</span>  \
+                    <span class="title">{{ feature.name }}</span> \
+                    <progressbar class="" v-bind:value="progress(index)"></progressbar> \
+                    <span class="effort">{{ storypointSum(index) }}</span> \
+                    <userstories v-on:update="featureUpdate" v-bind:feature="feature"></userstories> \
+              </li>'
+})
 Vue.component('features', {
     template:
         '<draggable class="features" element="ul" v-model="features" :options="draggableOptions"> \
-            <li @click="select($event, index)" v-for="(feature, index) in features" draggable="true" :class="{ feature: true, collapsable: true, collapsed: feature.collapsed, selected: feature.selected }" id="story"> \
-                <i @click="collapse($event, index)" :class="collapseClasses(index)" aria-hidden="true"></i> \
-                <span class="group">FEATURE-{{ feature.id }}</span>  \
-                <span class="title">{{ feature.name }}</span> \
-                <span class="status"></span> \
-                <span class="effort">{{ storypointSum(index) }}</span> \
-                <userstories v-bind:feature="feature"></userstories> \
-            </li> \
+            <feature v-for="(feature, index) in features" v-bind:feature="feature" v-bind:index="index"></feature> \
             <li class="feature" v-if="!features || features.length === 0"><span class="no-items">There are no features in this backlog</span></li> \
          </draggable>',
     props: ['backlog'],
@@ -144,6 +223,15 @@ Vue.component('features', {
             var sum = 0;
             this.features[index].userstories.forEach(function (story) { sum += story.points; });
             return sum;
+        },
+        progress: function (index) {
+            var sum = 0;
+            this.features[index].userstories.forEach(function (story) { sum += story.status ? story.status : 0 });
+            return parseFloat(sum / this.features[index].userstories.length).toFixed(0); 
+        },
+        featureUpdate: function (event) {
+            var featureIndex = this.features.findIndex(function (feature) { return feature.id == event.featureId });
+            this.features[featureIndex].userstories.find(function (story) { return story.id === event.userstory.id }).status = event.userstory.status;
         }
     },
     computed: {
@@ -195,7 +283,6 @@ Vue.component('backlogs', {
             if (window.keyDown.shift && this.lastSelection) {
                 var self = this;
                 var lastIndex = this.backlogs.findIndex(function (el) { return el.id === self.lastSelection.id });
-                console.log('index: ' + index + ', lastIndex: ' + lastIndex);
                 for (var i = Math.min(lastIndex, index) ; i <= Math.max(lastIndex, index) ; ++i) {
                     this.backlogs[i].selected = true;
                 }
