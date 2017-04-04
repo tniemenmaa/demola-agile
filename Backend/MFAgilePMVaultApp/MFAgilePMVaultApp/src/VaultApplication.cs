@@ -7,6 +7,7 @@ using MFiles.VAF;
 using MFiles.VAF.Common;
 using MFilesAPI;
 using Newtonsoft.Json.Linq;
+using System.Collections;
 
 namespace MFAgilePMVaultApp
 {
@@ -15,6 +16,31 @@ namespace MFAgilePMVaultApp
     /// </summary>
     public class Configuration
     {
+        public string ALIAS_MF_OT_PERSON = "MF.OT.Person";
+        public string ALIAS_MF_OT_FEATURE = "MF.OT.Feature";
+
+        public string ALIAS_MF_OC_USER_STORY = "MF.OC.UserStory";
+        public string ALIAS_MF_OC_TASK = "MF.OC.Task";
+
+        public string ALIAS_MF_PD_FEATURE_ID = "MF.PD.FeatureId";
+        public string ALIAS_MF_PD_TASK_ID = "MF.PD.TaskId";
+        public string ALIAS_MF_PD_TASK_STATE = "MF.PD.TaskState";
+        public string ALIAS_MF_PD_HOURS_REMAINING = "MF.PD.HoursRemaining";
+
+        public string ALIAS_MF_PD_PERSON_NAME = "MF.PD.PersonName";
+        public string ALIAS_MF_PD_FIRST_NAME = "MF.PD.FirstName";
+        public string ALIAS_MF_PD_LAST_NAME = "MF.PD.LastName";
+
+        public string ALIAS_MF_PD_DESCRIPTION = "MF.PD.Description";
+        public string ALIAS_MF_PD_NAME_OR_TITLE = "MF.PD.NameOrTitle";
+
+        public string ALIAS_MF_PD_USER_STORY_ID = "MF.PD.UserStoryID";
+        public string ALIAS_MF_PD_USER_STORY_STATE = "MF.PD.UserStoryState";
+        public string ALIAS_MF_PD_USER_STORY_POINTS = "MF.PD.UserStoryPoints";
+        public string ALIAS_MF_PD_FEATURE = "MF.PD.Feature";
+        public string ALIAS_MF_PD_SPRINT = "MF.PD.Sprint";
+        public string ALIAS_MF_PD_RESPONSIBLE_PERSON = "MF.PD.ResponsiblePerson";
+
         /// <summary>
         /// Reference to a test class.
         /// </summary>
@@ -119,12 +145,15 @@ namespace MFAgilePMVaultApp
 
             // JObject o = JObject.Parse(env.Input);
 
-            PropertyValuesOfMultipleObjects pvomo = GetPropertyValuesOfObjects(v, jsonQuery);
+            ObjectSearchResults osr = GetSubObjectsObjVers(v, jsonQuery);
+            ObjVers objVers = osr.ObjectVersions.GetAsObjVers();
 
             List<Product> plist = new List<Product>();
 
-            foreach ( PropertyValues pvs in pvomo)
+            foreach (ObjVer objVer in objVers)
             {
+                PropertyValues pvs = v.ObjectPropertyOperations.GetProperties(objVer);
+
                 // Build a list with the objects as needed according to the DataModel
                 Product p = new Product();
                 p.NameOrTitle = MFSearchUtils.getPropertyDisplayValue(pvs, 0);
@@ -158,22 +187,23 @@ namespace MFAgilePMVaultApp
 
             // JObject o = JObject.Parse(env.Input);
 
-            PropertyValuesOfMultipleObjects pvomo = GetPropertyValuesOfObjects(v, jsonQuery);
+            ObjectSearchResults osr = GetSubObjectsObjVers(v, jsonQuery);
+            ObjVers objVers = osr.ObjectVersions.GetAsObjVers();
 
-            List<Product> plist = new List<Product>();
+            List<Backlog> blist = new List<Backlog>();
 
-            foreach (PropertyValues pvs in pvomo)
+            foreach (ObjVer objVer in objVers)
             {
-                // Build a list with the objects as needed according to the DataModel
-                //Product p = new Product();
-                string NameOrTitle = MFSearchUtils.getPropertyDisplayValue(pvs, 0);
-                //plist.Add(p);
+                PropertyValues pvs = v.ObjectPropertyOperations.GetProperties(objVer);
 
- 
+                // Build a list with the objects as needed according to the DataModel
+                Backlog b = new Backlog();
+                string NameOrTitle = MFSearchUtils.getPropertyDisplayValue(pvs, 0);
+                blist.Add(b);
             }
 
             // Serialize the product list
-            string jsonString = Newtonsoft.Json.JsonConvert.SerializeObject(plist);
+            string jsonString = Newtonsoft.Json.JsonConvert.SerializeObject(blist);
             return jsonString;
 
         }
@@ -200,56 +230,207 @@ namespace MFAgilePMVaultApp
 
             // JObject o = JObject.Parse(env.Input);
 
-            PropertyValuesOfMultipleObjects pvomo = GetPropertyValuesOfObjects(v, jsonQuery);
+            ObjectSearchResults osrUS = GetSubObjectsObjVers(v, jsonQuery);
+            ObjVers objVersUS = osrUS.ObjectVersions.GetAsObjVers();
 
-            List<Product> plist = new List<Product>();
+            PropertyValuesOfMultipleObjects pvomoUS =
+                v.ObjectPropertyOperations.GetPropertiesOfMultipleObjects(objVersUS);
 
+            //List<UserStory> uList = new List<UserStory>();
+            List<Feature> fList= new List<Feature>();
+
+            // Iterate simultaniously thorugh objVers and pvomo
+            IEnumerator propValsEnum = pvomoUS.GetEnumerator();
+            foreach (ObjVer objVerUS in objVersUS)
+            {
+                //PropertyValues pvs = v.ObjectPropertyOperations.GetProperties(objVer);
+
+                propValsEnum.MoveNext();
+                PropertyValues pvsUS = propValsEnum.Current as PropertyValues;
+
+                // Build a list with the objects as needed according to the DataModel
+                UserStory u = new UserStory();
+                u.InternalId = objVerUS.ID;
+                u.UserStoryId = MFSearchUtils.getPropertyDisplayValue(
+                    pvsUS, v.PropertyDefOperations.GetPropertyDefIDByAlias(config.ALIAS_MF_PD_USER_STORY_ID));
+                u.NameOrTitle = MFSearchUtils.getPropertyDisplayValue(pvsUS, 0);
+                u.Description = MFSearchUtils.getPropertyDisplayValue(
+                    pvsUS, v.PropertyDefOperations.GetPropertyDefIDByAlias(config.ALIAS_MF_PD_DESCRIPTION));
+                u.UserStoryState = MFSearchUtils.getPropertyAsInt(
+                    pvsUS, v.PropertyDefOperations.GetPropertyDefIDByAlias(config.ALIAS_MF_PD_USER_STORY_STATE));
+                u.StoryPoints = Convert.ToInt16(MFSearchUtils.getPropertyDisplayValue(
+                    pvsUS, v.PropertyDefOperations.GetPropertyDefIDByAlias(config.ALIAS_MF_PD_USER_STORY_POINTS)));
+
+                // Resolve responsible person
+                int responsiblePersonId = MFSearchUtils.getPropertyAsInt(
+                    pvsUS, v.PropertyDefOperations.GetPropertyDefIDByAlias(config.ALIAS_MF_PD_RESPONSIBLE_PERSON));
+
+                SearchConditions scs = new SearchConditions();
+
+                ObjID objIDUS = new ObjID();
+                objIDUS.SetIDs(v.ObjectTypeOperations.GetObjectTypeIDByAlias(config.ALIAS_MF_OT_PERSON), responsiblePersonId);
+                PropertyValues pvPersonUS = v.ObjectOperations.GetLatestObjectVersionAndProperties(objIDUS, true).Properties;
+
+                Person p = new Person();
+                p.PersonName = MFSearchUtils.getPropertyDisplayValue(
+                    pvPersonUS, v.PropertyDefOperations.GetPropertyDefIDByAlias(config.ALIAS_MF_PD_PERSON_NAME));
+                p.FirstName = MFSearchUtils.getPropertyDisplayValue(
+                    pvPersonUS, v.PropertyDefOperations.GetPropertyDefIDByAlias(config.ALIAS_MF_PD_FIRST_NAME));
+                p.LastName = MFSearchUtils.getPropertyDisplayValue(
+                    pvPersonUS, v.PropertyDefOperations.GetPropertyDefIDByAlias(config.ALIAS_MF_PD_LAST_NAME));
+
+                u.ResponsiblePerson = p;
+                   
+                // Resolve Task list (Task is a subtype of User story)
+
+
+                // JObject o = JObject.Parse(env.Input);
+
+                ObjectSearchResults osrTasks = GetSubObjectsObjVers(v, null, config.ALIAS_MF_OC_TASK, config.ALIAS_MF_OC_USER_STORY, u.InternalId);
+                ObjVers objVersTasks = osrTasks.ObjectVersions.GetAsObjVers();
+
+                PropertyValuesOfMultipleObjects pvomoTasks = v.ObjectPropertyOperations.GetPropertiesOfMultipleObjects(objVersTasks);
+
+                List<Task> tList = new List<Task>();
+
+                // Iterate simultaniously thorugh objVers and pvomo
+                IEnumerator propValsEnumTask = pvomoTasks.GetEnumerator();
+                foreach (ObjVer objVerTask in objVersTasks)
+                {
+                    propValsEnumTask.MoveNext();
+                    PropertyValues pvsTask = propValsEnumTask.Current as PropertyValues;
+
+                    // Build a list with the objects as needed according to the DataModel
+                    Task t = new Task();
+                    t.InternalId = objVerTask.ID;
+                    t.TaskId = MFSearchUtils.getPropertyDisplayValue(
+                        pvsTask, v.PropertyDefOperations.GetPropertyDefIDByAlias(config.ALIAS_MF_PD_TASK_ID));
+                    t.NameOrTitle = MFSearchUtils.getPropertyDisplayValue(pvsTask, 0);
+                    t.Description = MFSearchUtils.getPropertyDisplayValue(
+                        pvsTask, v.PropertyDefOperations.GetPropertyDefIDByAlias(config.ALIAS_MF_PD_DESCRIPTION));
+                    t.TaskState = MFSearchUtils.getPropertyAsInt(
+                        pvsTask, v.PropertyDefOperations.GetPropertyDefIDByAlias(config.ALIAS_MF_PD_TASK_STATE));
+
+                    // Resolve responsible person
+                    int taskResponsiblePersonId = MFSearchUtils.getPropertyAsInt(
+                        pvsTask, v.PropertyDefOperations.GetPropertyDefIDByAlias(config.ALIAS_MF_PD_RESPONSIBLE_PERSON));
+
+                    ObjID objIDTask = new ObjID();
+                    objIDTask.SetIDs(v.ObjectTypeOperations.GetObjectTypeIDByAlias(config.ALIAS_MF_OT_PERSON), taskResponsiblePersonId);
+                    PropertyValues pvTaskPerson = v.ObjectOperations.GetLatestObjectVersionAndProperties(objIDTask, true).Properties;
+
+                    Person tp = new Person();
+                    tp.PersonName = MFSearchUtils.getPropertyDisplayValue(
+                        pvTaskPerson, v.PropertyDefOperations.GetPropertyDefIDByAlias(config.ALIAS_MF_PD_PERSON_NAME));
+                    tp.FirstName = MFSearchUtils.getPropertyDisplayValue(
+                        pvTaskPerson, v.PropertyDefOperations.GetPropertyDefIDByAlias(config.ALIAS_MF_PD_FIRST_NAME));
+                    tp.LastName = MFSearchUtils.getPropertyDisplayValue(
+                        pvTaskPerson, v.PropertyDefOperations.GetPropertyDefIDByAlias(config.ALIAS_MF_PD_LAST_NAME));
+
+                    t.ResponsiblePerson = tp;
+                    tList.Add(t);
+                }
+
+                u.TaskList = tList;
+
+                // Resolve Feature
+                int featureId = MFSearchUtils.getPropertyAsInt(
+                    pvsUS, v.PropertyDefOperations.GetPropertyDefIDByAlias(config.ALIAS_MF_PD_FEATURE));
+
+                u.FeatureInternalId = featureId;
+
+                // User stories will be returned as part of Feature hierarchy
+                // Check if current feature already is in the return list
+                // If so, add current UserStory to that Feature's UserStoryList
+                // If not, create new Feature and add the UserStory to it
+
+                Feature f = fList.Find(x => x.InternalId.Equals(featureId));
+
+                if (f == null)
+                {
+
+                    ObjID objIDFeature = new ObjID();
+                    objIDFeature.SetIDs(v.ObjectTypeOperations.GetObjectTypeIDByAlias(config.ALIAS_MF_OT_FEATURE), featureId);
+                    PropertyValues pvFeature = v.ObjectOperations.GetLatestObjectVersionAndProperties(objIDFeature, true).Properties;
+
+                    f = new Feature();
+                    f.InternalId = featureId;
+                    f.FeatureId = MFSearchUtils.getPropertyDisplayValue(
+                        pvFeature, v.PropertyDefOperations.GetPropertyDefIDByAlias(config.ALIAS_MF_PD_FEATURE_ID));
+                    f.NameOrTitle = MFSearchUtils.getPropertyDisplayValue(pvFeature, 0);
+                    f.Description = MFSearchUtils.getPropertyDisplayValue(
+                        pvFeature, v.PropertyDefOperations.GetPropertyDefIDByAlias(config.ALIAS_MF_PD_DESCRIPTION));
+                    if(f.UserStoryList == null)
+                    {
+                        f.UserStoryList = new List<UserStory>();
+                    }
+                    f.UserStoryList.Add(u);
+
+                }
+
+                fList.Add(f);
+
+                //ulist.Add(u);
+
+            }
+
+
+            /*            PropertyValuesOfMultipleObjects pvomo = 
+                            v.ObjectPropertyOperations.GetPropertiesOfMultipleObjects(objVers);
+                            */
+            /*
             foreach (PropertyValues pvs in pvomo)
             {
                 // Build a list with the objects as needed according to the DataModel
-                //Product p = new Product();
-                string NameOrTitle = MFSearchUtils.getPropertyDisplayValue(pvs, 0);
+                UserStory u = new UserStory();
+                u.NameOrTitle = MFSearchUtils.getPropertyDisplayValue(pvs, 0);
                 //plist.Add(p);
 
 
             }
+            */
+
+
 
             // Serialize the product list
-            string jsonString = Newtonsoft.Json.JsonConvert.SerializeObject(plist);
+            string jsonString = Newtonsoft.Json.JsonConvert.SerializeObject(fList);
             return jsonString;
 
         }
 
-
-        private PropertyValuesOfMultipleObjects GetPropertyValuesOfObjects(Vault v, string jsonQuery)
+        // specify either jsonString or the rest of the otptional params
+        private ObjectSearchResults GetSubObjectsObjVers(Vault v, string jsonQuery = null, string ocAlias = null, string oocAlias = null, int ownerId = -1)
         {
-            JObject jo = JObject.Parse(jsonQuery);
-            string ocAlias = (string)jo.SelectToken("ObjectClass");
-            string oocAlias = (string)jo.SelectToken("ObjectOwnerClass");
-            object ownerId = Convert.ToInt32(jo.SelectToken("OwnerId"));
+            string oClassAlias = ocAlias;
+            string ooClassAlias = oocAlias;
+            object ownerObjectId = ownerId;
+
+            if (jsonQuery != null)
+            {
+                JObject jo = JObject.Parse(jsonQuery);
+                oClassAlias = (string)jo.SelectToken("ObjectClass");
+                ooClassAlias = (string)jo.SelectToken("ObjectOwnerClass");
+                ownerObjectId = Convert.ToInt32(jo.SelectToken("OwnerId"));
+            }
 
             SearchConditions scs = new SearchConditions();
 
-            int objClassId = v.ClassOperations.GetObjectClassIDByAlias(ocAlias);
+            int objClassId = v.ClassOperations.GetObjectClassIDByAlias(oClassAlias);
             scs.Add(-1, MFSearchUtils.isObjectClass(objClassId));
 
             // Some searches do not require owner filter
-            if (ocAlias != null && oocAlias != null)
+            if (oClassAlias != null && ooClassAlias != null)
             {
-                int objOwnerClassId = v.ClassOperations.GetObjectClassIDByAlias(oocAlias);
+                int objOwnerClassId = v.ClassOperations.GetObjectClassIDByAlias(ooClassAlias);
                 ObjectClass oc = v.ClassOperations.GetObjectClass(objOwnerClassId);
                 ObjType ot = v.ObjectTypeOperations.GetObjectType(oc.ObjectType);
                 int ownerPropDef = ot.OwnerPropertyDef;
-                scs.Add(-1, MFSearchUtils.isOwner(ownerPropDef, ownerId));
+                scs.Add(-1, MFSearchUtils.isOwner(ownerPropDef, ownerObjectId));
             }
 
             ObjectSearchResults osr = MFSearchUtils.SearchForObjectsByConditions(v, scs);
 
-
-            ObjVers objVers = osr.ObjectVersions.GetAsObjVers();
-            PropertyValuesOfMultipleObjects pvomo = v.ObjectPropertyOperations.GetPropertiesOfMultipleObjects(objVers);
-
-            return pvomo;
+            return osr;
         }
 
         /*
