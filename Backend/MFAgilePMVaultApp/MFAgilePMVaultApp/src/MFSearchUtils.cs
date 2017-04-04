@@ -44,6 +44,25 @@ namespace MFAgilePMVaultApp
         }
 
         /// <summary>
+        /// Gets the specified property value as int (Lookup), or null if not found or value is empty
+        /// </summary>
+        /// <param name="props">PropertyValues collection to search in</param>
+        /// <param name="propDef">The property definition to look for</param>
+        /// <returns>DisplayValue of the requested property, or -1 if not found or value is empty</returns>
+        public static int getPropertyAsInt(PropertyValues props, int propDef)
+        {
+            int propIndex = props.IndexOf(propDef);
+            if (propIndex != -1)
+            {
+                return props[propIndex].Value.GetLookupID();
+            }
+            else
+            {
+                return -1;
+            }
+        }
+
+        /// <summary>
         /// search condition of whether the given text property starts with the specified value
         /// </summary>
         /// <param name="propertyID">property to look for</param>
