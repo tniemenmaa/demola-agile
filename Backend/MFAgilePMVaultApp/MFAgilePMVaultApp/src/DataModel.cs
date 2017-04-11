@@ -20,6 +20,7 @@ namespace MFAgilePMVaultApp
         public int BacklogType { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
+        public int Order { get; set; }
     }
 
     public class UserStory
@@ -33,6 +34,7 @@ namespace MFAgilePMVaultApp
         public Person ResponsiblePerson { get; set; }
         public int FeatureInternalId { get; set; }
         public List<Task> TaskList { get; set; }
+        public int Order { get; set; }
     }
 
     public class Task
@@ -44,6 +46,7 @@ namespace MFAgilePMVaultApp
         public int TaskState { get; set; }
         public int HoursRemaining { get; set; }
         public Person ResponsiblePerson { get; set; }
+        public int Order { get; set; }
     }
 
     public class Feature
@@ -53,6 +56,7 @@ namespace MFAgilePMVaultApp
         public string NameOrTitle { get; set; }
         public string Description { get; set; }
         public List<UserStory> UserStoryList; // list of UserStory objects
+        public int Order { get; set; }
     }
 
     public class Team

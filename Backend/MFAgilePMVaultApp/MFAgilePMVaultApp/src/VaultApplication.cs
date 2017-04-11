@@ -41,6 +41,11 @@ namespace MFAgilePMVaultApp
         public string ALIAS_MF_PD_SPRINT = "MF.PD.Sprint";
         public string ALIAS_MF_PD_RESPONSIBLE_PERSON = "MF.PD.ResponsiblePerson";
 
+        public Dictionary<int, int> FeatureOrderDictionary;
+        public Dictionary<int, int> UserStoryOrderDictionary;
+        public Dictionary<int, int> TaskOrderDictionary;
+
+
         /// <summary>
         /// Reference to a test class.
         /// </summary>
@@ -60,13 +65,19 @@ namespace MFAgilePMVaultApp
         /// Use Named Value Manager to change the configurations in the named value storage.
         /// </summary>
         [MFConfiguration("MFAgilePMVaultApp", "config")]
-        private Configuration config = new Configuration() { TestClassID = "TestClassAlias" };
+        private Configuration config = new Configuration(){ TestClassID = "TestClassAlias" };
 
         /// <summary>
         /// The method, that is run when the vault goes online.
         /// </summary>
         protected override void StartApplication()
         {
+
+            config.FeatureOrderDictionary = new Dictionary<int, int>();
+            config.UserStoryOrderDictionary = new Dictionary<int, int>();
+            config.TaskOrderDictionary = new Dictionary<int, int>();
+
+
             // Start writing extension method output to the event log every ten seconds. The background operation will continue until the vault goes offline.
             this.BackgroundOperations.StartRecurringBackgroundOperation("Recurring Hello World Operation", TimeSpan.FromSeconds(10), () =>
              {
@@ -200,6 +211,7 @@ namespace MFAgilePMVaultApp
                 Backlog b = new Backlog();
                 string NameOrTitle = MFSearchUtils.getPropertyDisplayValue(pvs, 0);
                 blist.Add(b);
+
             }
 
             // Serialize the product list
@@ -208,6 +220,19 @@ namespace MFAgilePMVaultApp
 
         }
 
+
+        private string MoveFeatureToBacklog(EventHandlerEnvironment env)
+        {
+            Vault v = env.Vault;
+
+            string jsonQuery = @"{
+                'FeatureId': '1',
+                'TargetBacklogId': '2',
+                'AfterFeatureId': '0'
+            }";
+
+            return null;
+        }
 
         /// <summary>
         /// A vault extension method, that will be installed to the vault with the application.
@@ -236,7 +261,6 @@ namespace MFAgilePMVaultApp
             PropertyValuesOfMultipleObjects pvomoUS =
                 v.ObjectPropertyOperations.GetPropertiesOfMultipleObjects(objVersUS);
 
-            //List<UserStory> uList = new List<UserStory>();
             List<Feature> fList= new List<Feature>();
 
             // Iterate simultaniously thorugh objVers and pvomo
@@ -256,13 +280,13 @@ namespace MFAgilePMVaultApp
                 u.NameOrTitle = MFSearchUtils.getPropertyDisplayValue(pvsUS, 0);
                 u.Description = MFSearchUtils.getPropertyDisplayValue(
                     pvsUS, v.PropertyDefOperations.GetPropertyDefIDByAlias(config.ALIAS_MF_PD_DESCRIPTION));
-                u.UserStoryState = MFSearchUtils.getPropertyAsInt(
+                u.UserStoryState = MFSearchUtils.getLookupPropertyAsInt(
                     pvsUS, v.PropertyDefOperations.GetPropertyDefIDByAlias(config.ALIAS_MF_PD_USER_STORY_STATE));
                 u.StoryPoints = Convert.ToInt16(MFSearchUtils.getPropertyDisplayValue(
                     pvsUS, v.PropertyDefOperations.GetPropertyDefIDByAlias(config.ALIAS_MF_PD_USER_STORY_POINTS)));
 
                 // Resolve responsible person
-                int responsiblePersonId = MFSearchUtils.getPropertyAsInt(
+                int responsiblePersonId = MFSearchUtils.getLookupPropertyAsInt(
                     pvsUS, v.PropertyDefOperations.GetPropertyDefIDByAlias(config.ALIAS_MF_PD_RESPONSIBLE_PERSON));
 
                 SearchConditions scs = new SearchConditions();
@@ -272,6 +296,7 @@ namespace MFAgilePMVaultApp
                 PropertyValues pvPersonUS = v.ObjectOperations.GetLatestObjectVersionAndProperties(objIDUS, true).Properties;
 
                 Person p = new Person();
+                p.InternalId = responsiblePersonId;
                 p.PersonName = MFSearchUtils.getPropertyDisplayValue(
                     pvPersonUS, v.PropertyDefOperations.GetPropertyDefIDByAlias(config.ALIAS_MF_PD_PERSON_NAME));
                 p.FirstName = MFSearchUtils.getPropertyDisplayValue(
@@ -308,11 +333,11 @@ namespace MFAgilePMVaultApp
                     t.NameOrTitle = MFSearchUtils.getPropertyDisplayValue(pvsTask, 0);
                     t.Description = MFSearchUtils.getPropertyDisplayValue(
                         pvsTask, v.PropertyDefOperations.GetPropertyDefIDByAlias(config.ALIAS_MF_PD_DESCRIPTION));
-                    t.TaskState = MFSearchUtils.getPropertyAsInt(
+                    t.TaskState = MFSearchUtils.getLookupPropertyAsInt(
                         pvsTask, v.PropertyDefOperations.GetPropertyDefIDByAlias(config.ALIAS_MF_PD_TASK_STATE));
 
                     // Resolve responsible person
-                    int taskResponsiblePersonId = MFSearchUtils.getPropertyAsInt(
+                    int taskResponsiblePersonId = MFSearchUtils.getLookupPropertyAsInt(
                         pvsTask, v.PropertyDefOperations.GetPropertyDefIDByAlias(config.ALIAS_MF_PD_RESPONSIBLE_PERSON));
 
                     ObjID objIDTask = new ObjID();
@@ -328,13 +353,31 @@ namespace MFAgilePMVaultApp
                         pvTaskPerson, v.PropertyDefOperations.GetPropertyDefIDByAlias(config.ALIAS_MF_PD_LAST_NAME));
 
                     t.ResponsiblePerson = tp;
+
+                    // Handle the task order
+                    if(!config.TaskOrderDictionary.ContainsKey(t.InternalId))
+                    {
+                        t.Order = 1;
+                        if (tList.Count > 0)
+                        {
+                            t.Order = tList.Max(x => x.Order) + 1;
+                        }
+                        config.TaskOrderDictionary.Add(t.InternalId, t.Order);
+                    }
+                    else
+                    {
+                        t.Order = config.TaskOrderDictionary[t.InternalId];
+                    }
+
                     tList.Add(t);
+                    // Reorder
+                    tList = tList.OrderBy(x => x.Order).ToList();
                 }
 
                 u.TaskList = tList;
 
                 // Resolve Feature
-                int featureId = MFSearchUtils.getPropertyAsInt(
+                int featureId = MFSearchUtils.getLookupPropertyAsInt(
                     pvsUS, v.PropertyDefOperations.GetPropertyDefIDByAlias(config.ALIAS_MF_PD_FEATURE));
 
                 u.FeatureInternalId = featureId;
@@ -346,6 +389,7 @@ namespace MFAgilePMVaultApp
 
                 Feature f = fList.Find(x => x.InternalId.Equals(featureId));
 
+                bool addFeatureToList = false;
                 if (f == null)
                 {
 
@@ -360,35 +404,53 @@ namespace MFAgilePMVaultApp
                     f.NameOrTitle = MFSearchUtils.getPropertyDisplayValue(pvFeature, 0);
                     f.Description = MFSearchUtils.getPropertyDisplayValue(
                         pvFeature, v.PropertyDefOperations.GetPropertyDefIDByAlias(config.ALIAS_MF_PD_DESCRIPTION));
-                    if(f.UserStoryList == null)
-                    {
-                        f.UserStoryList = new List<UserStory>();
-                    }
-                    f.UserStoryList.Add(u);
+                    f.UserStoryList = new List<UserStory>();
 
+                    addFeatureToList = true;
                 }
 
-                fList.Add(f);
+                // Ordering of user stories
+                if (!config.UserStoryOrderDictionary.ContainsKey(u.InternalId))
+                {
+                    u.Order = 1;
+                    if (f.UserStoryList.Count > 0)
+                    {
+                        u.Order = f.UserStoryList.Max(x => u.Order) + 1;
+                    }
+                    config.UserStoryOrderDictionary.Add(u.InternalId, u.Order);
+                }
+                else
+                {
+                    u.Order = config.UserStoryOrderDictionary[u.InternalId];
+                }
 
-                //ulist.Add(u);
+                f.UserStoryList.Add(u);
+                f.UserStoryList = f.UserStoryList.OrderBy(x => x.Order).ToList();
+
+                // Add the new feature to the list
+                if (addFeatureToList)
+                {
+                    if (!config.FeatureOrderDictionary.ContainsKey(f.InternalId))
+                    {
+                        f.Order = 1;
+                        if (fList.Count > 0)
+                        {
+                            f.Order = fList.Max(x => x.Order) + 1;
+                        }
+                        config.FeatureOrderDictionary.Add(f.InternalId, f.Order);
+                    }
+                    else
+                    {
+                        f.Order = config.FeatureOrderDictionary[f.InternalId];
+                    }
+
+                    fList.Add(f);
+                }
 
             }
 
-
-            /*            PropertyValuesOfMultipleObjects pvomo = 
-                            v.ObjectPropertyOperations.GetPropertiesOfMultipleObjects(objVers);
-                            */
-            /*
-            foreach (PropertyValues pvs in pvomo)
-            {
-                // Build a list with the objects as needed according to the DataModel
-                UserStory u = new UserStory();
-                u.NameOrTitle = MFSearchUtils.getPropertyDisplayValue(pvs, 0);
-                //plist.Add(p);
-
-
-            }
-            */
+            // Reorder the Feature list
+            fList = fList.OrderBy(x => x.Order).ToList();
 
 
 

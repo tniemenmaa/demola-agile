@@ -49,7 +49,7 @@ namespace MFAgilePMVaultApp
         /// <param name="props">PropertyValues collection to search in</param>
         /// <param name="propDef">The property definition to look for</param>
         /// <returns>DisplayValue of the requested property, or -1 if not found or value is empty</returns>
-        public static int getPropertyAsInt(PropertyValues props, int propDef)
+        public static int getLookupPropertyAsInt(PropertyValues props, int propDef)
         {
             int propIndex = props.IndexOf(propDef);
             if (propIndex != -1)
