@@ -146,7 +146,7 @@ namespace MFAgilePMVaultApp
             }";
 
             env.Input = jsonQuery;
-            bool status = MoveFeatureToBacklog(env);
+            string status = MoveFeatureToBacklog(env);
 
 /*            // 4.1. Get UserStories from Source blog
             jsonQuery = @"{
@@ -226,7 +226,8 @@ namespace MFAgilePMVaultApp
             }
 
             // Serialize the product list
-            string jsonString = Newtonsoft.Json.JsonConvert.SerializeObject(plist);
+            var container = new { Result = plist };
+            string jsonString = Newtonsoft.Json.JsonConvert.SerializeObject(container);
             return jsonString;
 
         }
@@ -314,14 +315,22 @@ namespace MFAgilePMVaultApp
             }
 
             // Serialize the product list
-            string jsonString = Newtonsoft.Json.JsonConvert.SerializeObject(bList);
+            var container = new { Result = bList };
+            string jsonString = Newtonsoft.Json.JsonConvert.SerializeObject(container);
             return jsonString;
 
         }
 
-
-        private bool MoveFeatureToBacklog(EventHandlerEnvironment env)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="env"></param>
+        /// <returns></returns>
+        [VaultExtensionMethod("MoveFeatureToBacklog", RequiredVaultAccess = MFVaultAccess.MFVaultAccessNone)]
+        private string MoveFeatureToBacklog(EventHandlerEnvironment env)
         {
+            var result = new { Result = "SUCCESS", Message = "" };
+
             Vault v = env.Vault;
 
             JObject o = JObject.Parse(env.Input);
@@ -361,14 +370,16 @@ namespace MFAgilePMVaultApp
                 }
                 else
                 {
-                    return false;
+                    var message = "Object is checked out: " + objVerUS.ID;
+                    result = new { Result = "FAILED", Message = message };
                 }
 
                 // Remove feature order from current backlog dictionary and
                 // update feature order in the target backlog dictionary
             }
 
-            return true;
+            return Newtonsoft.Json.JsonConvert.SerializeObject(result);
+
         }
 
         /// <summary>
@@ -642,7 +653,8 @@ namespace MFAgilePMVaultApp
 
 
             // Serialize the product list
-            string jsonString = Newtonsoft.Json.JsonConvert.SerializeObject(fList);
+            var container = new { Result = fList };
+            string jsonString = Newtonsoft.Json.JsonConvert.SerializeObject(container);
             return jsonString;
 
         }
