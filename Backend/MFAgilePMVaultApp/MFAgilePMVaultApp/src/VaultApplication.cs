@@ -85,7 +85,7 @@ namespace MFAgilePMVaultApp
 
 
             // Start writing extension method output to the event log every ten seconds. The background operation will continue until the vault goes offline.
-            this.BackgroundOperations.StartRecurringBackgroundOperation("Recurring Hello World Operation", TimeSpan.FromSeconds(10), () =>
+            /*this.BackgroundOperations.StartRecurringBackgroundOperation("Recurring Hello World Operation", TimeSpan.FromSeconds(10), () =>
              {
                     // Prepare input for the extension method.
                     string input = "{'id': '1'}";
@@ -95,7 +95,7 @@ namespace MFAgilePMVaultApp
 
                     // Report extension method output to event log.
                     SysUtils.ReportInfoToEventLog(output);
-             });
+             });*/
         }
 
 
