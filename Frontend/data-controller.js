@@ -14,10 +14,13 @@ var randomStoryPoints = function() {
     OwnerId: "1" // BacklogId
 }
 */
-
-var MFiles = {
+var vaultRef = null;
+MFiles = {
     methods: {
-        
+        attachVault: function(vault) {
+            vaultRef = vault;
+            alert(vaultRef !== null);
+        },
         getBacklogs: function () {
             if (dummy < 4) {
                 dummy += 2;
@@ -98,7 +101,21 @@ var MFiles = {
 
         getFeatures: function (guid) {
 
+            /*
             var paramObj = {
+                ObjectClass: "MF.OC.UserStory",
+                ObjectOwnerClass: "MF.OC.Backlog",
+                OwnerId: "1"
+            };
+
+            var result = vaultRef.ExtensionMethodOperations.ExecuteVaultExtensionMethod(
+                                "GetUserStoriesByFeatureWithTasks",
+                                JSON.stringify(paramObj));
+
+            alert('test');
+            */
+
+            /*var paramObj = {
                 ObjectClass: "MF.OC.UserStory",
                 ObjectOwnerClass: "MF.OC.Backlog",
                 OwnerId: "1"
@@ -114,7 +131,7 @@ var MFiles = {
                 message: "[" + result + "]",
                 button1_title: "OK"
             });
-
+            */
             // GetUserStoriesByFeaturesWithTasks
             /*
             {

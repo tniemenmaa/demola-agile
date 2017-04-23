@@ -6,6 +6,22 @@
 <meta http-equiv="content-type" content="text/html;charset=UTF-8">
 </head>
 <body>
-    <h1>Hello World</h1>
+    <script type="text/javascript">
+        "use strict";
+
+        function OnNewDashboard(dashboard) {
+            dashboard.Events.Register(MFiles.Event.Started, getDashboardStartedHandler(dashboard));
+        }
+
+        function getDashboardStartedHandler(dashboard) {
+            // Return the event handler.
+            return function () {
+
+                // Shortcuts.
+                var shellFrame = dashboard.Parent;
+                var additionalSectionShown = false;
+            };
+        }
+    </script>
 </body>
 </html>

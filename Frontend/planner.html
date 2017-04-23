@@ -7,8 +7,11 @@
     <link rel="stylesheet" href="font-awesome/css/font-awesome.min.css">
     <link rel="stylesheet" href="bootstrap.min.css" />
     <link rel="stylesheet" href="style.css" />
+
+
 </head>
 <body>
+
     <!-- TODO:
         1: Show backlog item effot and progress bar
         1: Clicking item selects it
@@ -40,7 +43,7 @@
                 </ul>
             </li>
         </ul>-->
-    </div>    
+    </div>
     <script type="text/javascript" src="polyfill.min.js"></script>
     <script type="text/javascript" src="vue.min.js"></script>
     <script type="text/javascript" src="sortable.min.js"></script>
@@ -49,5 +52,26 @@
     <script type="text/javascript" src="jquery-ui.min.js"></script>
     <script type="text/javascript" src="data-controller.js"></script>
     <script type="text/javascript" src="planner.js"></script>
+
+    <script type="text/javascript">
+
+        "use strict";
+
+        function OnNewDashboard(dashboard) {
+            dashboard.Events.Register(MFiles.Event.Started, getDashboardStartedHandler(dashboard));
+        }
+
+        function getDashboardStartedHandler(dashboard) {
+            // Return the event handler.
+            return function () {
+
+                // Shortcuts.
+                var shellFrame = dashboard.Parent;
+                var additionalSectionShown = false;
+
+                MFiles.methods.attachVault(shellFrame.ShellUI.Vault);
+            };
+        }
+    </script>
 </body>
 </html>
