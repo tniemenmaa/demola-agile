@@ -35,6 +35,7 @@ namespace MFAgilePMVaultApp
         public int FeatureInternalId { get; set; }
         public List<Task> TaskList { get; set; }
         public int Order { get; set; }
+
     }
 
     public class Task
@@ -62,7 +63,7 @@ namespace MFAgilePMVaultApp
     public class Team
     {
         public int InternalId { get; set; }
-        public string NameOrtitle { get; set; }
+        public string NameOrTitle { get; set; }
         public Person TeamLeader { get; set; }
         public List<Person> TeamMembers { get; set; }
         Sprint Sprint { get; set; }
@@ -77,6 +78,7 @@ namespace MFAgilePMVaultApp
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public  List<UserStory> UserStoryList { get; set; }
+        public int Order { get; set; }
     }
 
     public class Person
@@ -86,5 +88,6 @@ namespace MFAgilePMVaultApp
         public string FirstName { get; set; }
         public string LastName { get; set; }
     }
+
 
 }
