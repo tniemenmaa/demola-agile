@@ -96,9 +96,9 @@ namespace MFAgilePMVaultApp
             config.SprintDictionary = new Dictionary<int, Dictionary<int, int>>();
             config.SprintFeatureDictionary = new Dictionary<int, Dictionary<int, int>>();
             config.SprintUserStoryDictionary = new Dictionary<int, Dictionary<int, int>>();
-
+            /*
             // Start writing extension method output to the event log every ten seconds. The background operation will continue until the vault goes offline.
-            /*this.BackgroundOperations.StartRecurringBackgroundOperation("Recurring Hello World Operation", TimeSpan.FromSeconds(10), () =>
+            this.BackgroundOperations.StartRecurringBackgroundOperation("Recurring Hello World Operation", TimeSpan.FromSeconds(10), () =>
             {
 
                 // Prepare input for the extension method.
@@ -121,6 +121,8 @@ namespace MFAgilePMVaultApp
         private string MyAPISprintTests(EventHandlerEnvironment env)
         {
 
+            List<Feature> returnFeatureList;
+
             // 1. GetTeams
             env.Input = @"{
                 'ObjectClass': 'MF.OC.Team'
@@ -132,28 +134,46 @@ namespace MFAgilePMVaultApp
 
 
             // 2. Get Sprints
-            string jsonQuery = @"
-                'ObjectClass': 'MF.OC.Sprint',
-                'ObjectOwnerClass': 'MF.OC.Team',
-                'OwnerId': '{0}'
-            ";
-            env.Input = "{" + String.Format(jsonQuery, teamList[0].InternalId) + "}";
-            string mySprintList = GetSprints(env);
 
-            var TResultSprint = new { Result = new List<Sprint>() };
-            List<Sprint> sprintList = Newtonsoft.Json.JsonConvert.DeserializeAnonymousType(mySprintList, TResultSprint).Result;
+            foreach (Team team in teamList)
+            {
+                string jsonQuery = @"
+                    'ObjectClass': 'MF.OC.Sprint',
+                    'ObjectOwnerClass': 'MF.OC.Team',
+                    'OwnerId': '{0}'
+                ";
+                env.Input = "{" + String.Format(jsonQuery, team.InternalId) + "}";
+                string mySprintList = GetSprints(env);
+
+                var TResultSprint = new { Result = new List<Sprint>() };
+                List<Sprint> sprintList = Newtonsoft.Json.JsonConvert.DeserializeAnonymousType(
+                    mySprintList, TResultSprint).Result;
 
 
-            // 3. Get UserStories By Feature With Tasks
-            jsonQuery = @"
-                'ObjectClass': 'MF.OC.UserStory',
-                'PropertyAlias': 'MF.PD.Sprint',
-                'PropertyValue': '{0}'
-            ";
-            env.Input = "{" + String.Format(jsonQuery, sprintList[0].InternalId) + "}";
+                // 3. Get UserStories By Feature With Tasks
+                jsonQuery = @"
+                    'ObjectClass': 'MF.OC.UserStory',
+                    'PropertyAlias': 'MF.PD.Sprint',
+                    'PropertyValue': '{0}'
+                ";
 
-            string myUserStoriesByFeatureList = GetUserStoriesByFeatureWithTasksForSprint(env);
+                foreach (Sprint sprint in sprintList)
+                {
+                    env.Input = "{" + String.Format(jsonQuery, sprint.InternalId) + "}";
+                    string myUserStoriesByFeatureList = GetUserStoriesByFeatureWithTasksForSprint(env);
 
+                    var TResultFeature = new { Result = new List<Feature>() };
+                    List<Feature> featureList = Newtonsoft.Json.JsonConvert.DeserializeAnonymousType
+                        (myUserStoriesByFeatureList, TResultFeature).Result;
+                    if(featureList.Count > 0)
+                    {
+                        returnFeatureList = featureList;
+                        goto end;
+                    }
+                }
+            }
+
+        end:
             return Convert.ToString(true);
         }
 
@@ -187,7 +207,7 @@ namespace MFAgilePMVaultApp
             string myBacklogList = GetBacklogs(env);
 
             var TResultBacklog = new { Result = new List<Backlog>() };
-            List<Backlog> bList = Newtonsoft.Json.JsonConvert.DeserializeAnonymousType(myProductList, TResultBacklog).Result;
+            List<Backlog> bList = Newtonsoft.Json.JsonConvert.DeserializeAnonymousType(myBacklogList, TResultBacklog).Result;
 
 
             // 3. Get UserStories By Feature With Tasks
@@ -199,8 +219,11 @@ namespace MFAgilePMVaultApp
             env.Input = "{" + String.Format(jsonQuery, bList[0].InternalId) + "}";
 
             string myUserStoriesByFeatureList = GetUserStoriesByFeatureWithTasks(env);
+            var TResultUserStories = new { Result = new List<Feature>() };
+            List<Feature> fList = Newtonsoft.Json.JsonConvert.DeserializeAnonymousType(myUserStoriesByFeatureList, TResultUserStories).Result;
 
 
+            
             // 4. MoveFeatureToBacklog
             jsonQuery = @"{
                 'FeatureId': '2',
@@ -212,7 +235,7 @@ namespace MFAgilePMVaultApp
             env.Input = jsonQuery;
             string status = MoveFeatureToBacklog(env);
 
-/*            // 4.1. Get UserStories from Source blog
+            // 4.1. Get UserStories from Source blog
             jsonQuery = @"{
                 'ObjectClass': 'MF.OC.UserStory',
                 'ObjectOwnerClass': 'MF.OC.Backlog',
@@ -233,8 +256,8 @@ namespace MFAgilePMVaultApp
             // 4.3. MoveFeatureToBacklog to original state
             jsonQuery = @"{
                 'FeatureId': '2',
-                'SourceBacklogId': '2',
-                'TargetBacklogId': '1',
+                'SourceBacklogId': '3',
+                'TargetBacklogId': '2',
                 'AfterFeatureId': '0'
             }";
             env.Input = jsonQuery;
@@ -257,7 +280,7 @@ namespace MFAgilePMVaultApp
             }";
             env.Input = jsonQuery;
             myUserStoriesByFeatureList = GetUserStoriesByFeatureWithTasks(env);
-            */
+            
 
             return Convert.ToString(true);
         }
@@ -301,17 +324,16 @@ namespace MFAgilePMVaultApp
 
                 ObjID objIDPerson = new ObjID();
                 objIDPerson.SetIDs(v.ObjectTypeOperations.GetObjectTypeIDByAlias(config.ALIAS_MF_OT_PERSON), teamLeaderId);
-                PropertyValues pvPerson = v.ObjectOperations.GetLatestObjectVersionAndProperties(objIDPerson, true).Properties;
 
-                Person p = new Person();
-                p.InternalId = teamLeaderId;
-                p.PersonName = MFSearchUtils.getPropertyDisplayValue(
-                    pvPerson, v.PropertyDefOperations.GetPropertyDefIDByAlias(config.ALIAS_MF_PD_PERSON_NAME));
-                p.FirstName = MFSearchUtils.getPropertyDisplayValue(
-                    pvPerson, v.PropertyDefOperations.GetPropertyDefIDByAlias(config.ALIAS_MF_PD_FIRST_NAME));
-                p.LastName = MFSearchUtils.getPropertyDisplayValue(
-                    pvPerson, v.PropertyDefOperations.GetPropertyDefIDByAlias(config.ALIAS_MF_PD_LAST_NAME));
-                team.TeamLeader = p;
+                try
+                {
+                    PropertyValues pvPerson = v.ObjectOperations.GetLatestObjectVersionAndProperties(objIDPerson, true).Properties;
+                    team.TeamLeader = GetPersonData(v, teamLeaderId, pvPerson);
+                }
+                catch (Exception e)
+                {
+                    // In case responsible person is not set
+                }
 
 
                 // Resolve team members
@@ -325,18 +347,19 @@ namespace MFAgilePMVaultApp
                     int memberId = memberLookup.Item;
                     objIDPerson = new ObjID();
                     objIDPerson.SetIDs(v.ObjectTypeOperations.GetObjectTypeIDByAlias(config.ALIAS_MF_OT_PERSON), memberId);
-                    pvPerson = v.ObjectOperations.GetLatestObjectVersionAndProperties(objIDPerson, true).Properties;
 
-                    Person pMember = new Person();
-                    pMember.InternalId = memberId;
-                    pMember.PersonName = MFSearchUtils.getPropertyDisplayValue(
-                        pvPerson, v.PropertyDefOperations.GetPropertyDefIDByAlias(config.ALIAS_MF_PD_PERSON_NAME));
-                    pMember.FirstName = MFSearchUtils.getPropertyDisplayValue(
-                        pvPerson, v.PropertyDefOperations.GetPropertyDefIDByAlias(config.ALIAS_MF_PD_FIRST_NAME));
-                    pMember.LastName = MFSearchUtils.getPropertyDisplayValue(
-                        pvPerson, v.PropertyDefOperations.GetPropertyDefIDByAlias(config.ALIAS_MF_PD_LAST_NAME));
+                    try
+                    {
+                        PropertyValues pvPerson = v.ObjectOperations.GetLatestObjectVersionAndProperties(objIDPerson, true).Properties;
+                        Person pMember = GetPersonData(v, memberId, pvPerson);
+                        teamMembers.Add(pMember);
+                    }
+                    catch (Exception e)
+                    {
+                        // In case responsible person is not set
+                    }
 
-                    teamMembers.Add(pMember);
+
                 }
                 team.TeamMembers = teamMembers;
 
@@ -614,7 +637,7 @@ namespace MFAgilePMVaultApp
         {
             List<Feature> fList = GetFeaturesHierarchyForBacklog(env);
 
-            // Serialize the product list
+            // Serialize the feature (with user stories) list
             var container = new { Result = fList };
             string jsonString = Newtonsoft.Json.JsonConvert.SerializeObject(container);
 
@@ -1020,17 +1043,16 @@ namespace MFAgilePMVaultApp
 
                 ObjID objIDTask = new ObjID();
                 objIDTask.SetIDs(v.ObjectTypeOperations.GetObjectTypeIDByAlias(config.ALIAS_MF_OT_PERSON), taskResponsiblePersonId);
-                PropertyValues pvTaskPerson = v.ObjectOperations.GetLatestObjectVersionAndProperties(objIDTask, true).Properties;
 
-                Person tp = new Person();
-                tp.PersonName = MFSearchUtils.getPropertyDisplayValue(
-                    pvTaskPerson, v.PropertyDefOperations.GetPropertyDefIDByAlias(config.ALIAS_MF_PD_PERSON_NAME));
-                tp.FirstName = MFSearchUtils.getPropertyDisplayValue(
-                    pvTaskPerson, v.PropertyDefOperations.GetPropertyDefIDByAlias(config.ALIAS_MF_PD_FIRST_NAME));
-                tp.LastName = MFSearchUtils.getPropertyDisplayValue(
-                    pvTaskPerson, v.PropertyDefOperations.GetPropertyDefIDByAlias(config.ALIAS_MF_PD_LAST_NAME));
-
-                t.ResponsiblePerson = tp;
+                try
+                {
+                    PropertyValues pvTaskPerson = v.ObjectOperations.GetLatestObjectVersionAndProperties(objIDTask, true).Properties;
+                    t.ResponsiblePerson = GetPersonData(v, taskResponsiblePersonId, pvTaskPerson);
+                }
+                catch (Exception e)
+                {
+                    // In case responsible person is not set
+                }
 
                 // TODO: Move this code to User Story creation
                 // Order Dictionary for tasks is User Story specific
@@ -1205,9 +1227,17 @@ namespace MFAgilePMVaultApp
 
             ObjID objIDUS = new ObjID();
             objIDUS.SetIDs(v.ObjectTypeOperations.GetObjectTypeIDByAlias(config.ALIAS_MF_OT_PERSON), responsiblePersonId);
-            PropertyValues pvPersonUS = v.ObjectOperations.GetLatestObjectVersionAndProperties(objIDUS, true).Properties;
+            try
+            {
+                PropertyValues pvPersonUS = v.ObjectOperations.GetLatestObjectVersionAndProperties(objIDUS, true).Properties;
+                u.ResponsiblePerson = GetPersonData(v, responsiblePersonId, pvPersonUS);
+            }
+            catch (Exception e)
+            {
+                // In case responsible person is not set
+            }
 
-            u.ResponsiblePerson = GetPersonData(v, responsiblePersonId, pvPersonUS);
+
 
 
             // Resolve Task list (Task is a subtype of User story)
