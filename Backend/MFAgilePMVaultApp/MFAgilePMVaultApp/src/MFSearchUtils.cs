@@ -62,6 +62,20 @@ namespace MFAgilePMVaultApp
             }
         }
 
+        public static Lookups getMultiSelectLookupPropertyAsIntList(PropertyValues props, int propDef)
+        {
+            int propIndex = props.IndexOf(propDef);
+            if (propIndex != -1)
+            {
+                return props[propIndex].Value.GetValueAsLookups();
+            }
+            else
+            {
+                // retrun empty list
+                return new Lookups();
+            }
+        }
+
         /// <summary>
         /// search condition of whether the given text property starts with the specified value
         /// </summary>
