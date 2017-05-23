@@ -7,43 +7,15 @@
     <link rel="stylesheet" href="font-awesome/css/font-awesome.min.css">
     <link rel="stylesheet" href="bootstrap.min.css" />
     <link rel="stylesheet" href="style.css" />
-
-
 </head>
-<body>
-
-    <!-- TODO:
-        1: Show backlog item effot and progress bar
-        1: Clicking item selects it
-        2: Expand / collapse button 
-        3: Multiple selection for drag and drop 
-        4: Show sum of selected items (items, size, storypoints...)
-        5: Only allow drag and drop of Not started from release backlogs 
-        
-        1: Commited backlog with list of sprints
-        2: Uncommitted backlog with list of uncommited features-->
+<body>    
+    <!-- Application root-->
     <div id="root">
-        <backlogs id="left-column" header="Sprint planner"></backlogs>
-        <backlogs id="right-column" header="Release planner"></backlogs>
-        
-        <!-- Right Column-->
-        <!--<ul id="right-backlog" class="backlogs planner">
-            <li draggable="true" class="backlog collapsable collapsed">
-                <i class="fa fa-plus-square-o collapse" aria-hidden="true"></i>
-                <span class="title">Release 1.0</span>
-                <ul class="features">
-                    No features added
-                </ul>
-            </li>
-            <li draggable="true" class="backlog collapsable collapsed">
-                <i class="fa fa-plus-square-o collapse" aria-hidden="true"></i>
-                <span class="title">Release 1.1</span>
-                <ul class="features">
-                    No features added
-                </ul>
-            </li>
-        </ul>-->
+        <backlogs class="backlog-column" id="left-column" v-bind:backlogtype="2" header="Sprint planner"></backlogs>
+        <backlogs class="backlog-column" id="right-column" v-bind:backlogtype="1" header="Release planner"></backlogs>
     </div>
+
+    <!-- Scripts -->
     <script type="text/javascript" src="polyfill.min.js"></script>
     <script type="text/javascript" src="vue.min.js"></script>
     <script type="text/javascript" src="sortable.min.js"></script>
@@ -54,23 +26,31 @@
     <script type="text/javascript" src="planner.js"></script>
 
     <script type="text/javascript">
-
         "use strict";
-
         function OnNewDashboard(dashboard) {
             dashboard.Events.Register(MFiles.Event.Started, getDashboardStartedHandler(dashboard));
         }
 
         function getDashboardStartedHandler(dashboard) {
-            // Return the event handler.
             return function () {
-
-                // Shortcuts.
                 var shellFrame = dashboard.Parent;
                 var additionalSectionShown = false;
-
-                MFiles.methods.attachVault(shellFrame.ShellUI.Vault);
+                // Attach the vault for actual business logic to use
+                MFilesAgile.methods.attachVault(shellFrame);
+                initPlanner();
             };
+        }
+        if (useDummyData) {
+            // initPlanner();
+        }
+    </script>
+
+    <!-- Alerts for debugging purposes, should use logger of some sort in production environment --> 
+    <script type="text/javascript">
+        var goErrHandler = window.onerror;
+        goErrHandler = function (msg, url, linenumber) {
+            alert('Error message: ' + msg + '\nURL: ' + url + '\nLine Number: ' + linenumber);
+            return true;
         }
     </script>
 </body>

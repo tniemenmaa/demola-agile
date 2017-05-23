@@ -1,8 +1,10 @@
+var initPlanner = function() {
 window.addEventListener('keydown', onKeyDown, true);
 window.addEventListener('keyup', onKeyUp, true);
 
 window.keyDown = {};
 
+// Key event handling for ctrl and shift click functionality 
 function onKeyDown(e) {
 
     if (e.keyCode == 17) { // Ctrl
@@ -31,6 +33,8 @@ Object.defineProperty(Vue.prototype, '$bus', {
     }
 });
 
+var Events = new Vue({});
+
 Vue.component('progressbar', {
 
     props: ["value"],
@@ -55,40 +59,73 @@ Vue.component('progressbar', {
 // Components (TODO: Separate to different .js files)
 Vue.component('tasks', {
     template:
-        '<draggable class="tasks" element="ul" v-model="userstory.tasks"> \
-            <li @click="select($event, index)" v-for="(task, index) in userstory.tasks" draggable="true" :class="{ task: true, collapsable: true, collapsed: task.collapsed, selected: task.selected }" id="story"> \
+        '<draggable class="tasks" element="ul" v-model="userstory.TaskList" :options="draggableOptions"> \
+            <li @click="select($event, index)" v-for="(task, index) in userstory.TaskList" draggable="true" :class="{ task: true, collapsable: true, collapsed: task.Collapsed, selected: task.Selected }" id="story"> \
                 <i class="fa fa-square-o"></i> \
-                <span class="group">TASK-{{ task.id }}</span>  \
-                <span class="title">{{ task.name }}</span> \
+                <span class="group"></span>  \
+                <span class="title">{{ task.NameOrTitle }}</span> \
+                <span class="status">{{ task.State }}</span> \
             </li> \
-            <li @click="select($event, null)" v-if="!userstory.tasks || userstory.tasks.length === 0"><span class="no-items">There are no tasks in this userstory</span></li> \
+            <li @click="select($event, null)" v-if="!userstory.TaskList || userstory.TaskList.length === 0"><span class="no-items">There are no tasks in this userstory</span></li> \
          </draggable>',
     props: ['userstory'],
-    ready: function () {
-        this.$bus.$on('select')
+    created: function () {
+        Events.$on('unselectAll', this.unselectAll);
     },
     methods: {
         select: function (event, index) {
             event.stopPropagation();
-            if (!index) return;
 
-            this.userstory.tasks[index].selected = !this.userstory.tasks[index].selected;
+            var selection = this.userstory.TaskList[index].Selected;
+
+            Events.$emit('unselectAll', event);
+
+            this.userstory.TaskList[index].Selected = !selection;
+
+            MFilesAgile.methods.openMetadataCard(this.userstory.TaskList[index].InternalId, 103);
+        },
+        unselectAll: function (event) {
+            this.userstory.TaskList.forEach(function (task) { task.Selected = false; });
+        },
+        status: function (index) {
+            var code = this.userstory.TaskList[index].TaskState;
+            if (code == 1) {
+                return "Not Started";
+            }
+            else if (code == 2) {
+                return "In Progress";
+            }
+            else if (code == 3) {
+                return "Impeded";
+            }
+            else if (code == 4) {
+                return "Done";
+            }
+            return "N/A";
+        }
+    },
+    computed: {
+        draggableOptions: function () {
+            return {
+                group: 'tasks',
+                delay: 100
+            }
         }
     }
 });
 
 Vue.component('userstories', {
     template:
-        '<draggable class="userstories" element="ul" v-model="feature.userstories" :options="draggableOptions"> \
-            <li @click="select($event, index)" v-for="(userstory, index) in feature.userstories" draggable="true" :class="{ userstory: true, collapsable: true, collapsed: userstory.collapsed, selected: userstory.selected }" id="story"> \
+        '<draggable class="userstories" element="ul" v-model="feature.UserStoryList" :options="draggableOptions"> \
+            <li @click="select($event, index)" v-for="(userstory, index) in feature.UserStoryList" draggable="true" :class="{ userstory: true, collapsable: true, collapsed: userstory.Collapsed, selected: userstory.Selected }" id="story"> \
                 <i @click="collapse($event, index)" :class="collapseClasses(index)" aria-hidden="true"></i> \
-                <span class="group">USERSTORY-{{ userstory.id }}</span>  \
-                <span class="title">{{ userstory.name }}</span> \
+                <span class="group">{{ userstory.UserStoryId }}</span>  \
+                <span class="title">{{ userstory.NameOrTitle }}</span> \
                 <progressbar class="" v-bind:value="progress(index)"></progressbar> \
-                <span class="effort">{{ userstory.points }}</span> \
+                <span class="effort">{{ userstory.StoryPoints }}</span> \
                 <tasks v-bind:userstory="userstory"></tasks> \
             </li> \
-            <li v-if="!feature.userstories || feature.userstories.length === 0"><span class="no-items">There are no userstories in this feature</span></li> \
+            <li v-if="!feature.UserStoryList || feature.UserStoryList.length === 0"><span class="no-items">There are no userstories in this feature</span></li> \
          </draggable>',
     props: ['feature'],
     data: function()  {
@@ -96,43 +133,57 @@ Vue.component('userstories', {
             calculated: false,
         }
     },
+    created: function () {
+        Events.$on('unselectAll', this.unselectAll);
+    },
     mounted: function() {
         this.initialCalculations();
     },
     methods: {
         collapse: function (event, index) {
             event.stopPropagation();
-            this.feature.userstories[index].collapsed = !this.feature.userstories[index].collapsed;
+            this.feature.UserStoryList[index].Collapsed = !this.feature.UserStoryList[index].Collapsed;
         },
         select: function (event, index) {
+            var selection = this.feature.UserStoryList[index].Selected;
+            Events.$emit('unselectAll', event);
             event.stopPropagation();
-            this.feature.userstories[index].selected = !this.feature.userstories[index].selected;
+            this.feature.UserStoryList[index].Selected = !selection;
+            MFilesAgile.methods.openMetadataCard(this.feature.UserStoryList[index].InternalId, 102);
+        },
+        unselectAll: function (event) {
+            this.feature.UserStoryList.forEach(function (userstory) { userstory.Selected = false; });
         },
         collapseClasses: function (index) {
-            return this.feature.userstories[index].collapsed ? "fa fa-plus-square-o" : 'fa fa-minus-square-o';
+            return this.feature.UserStoryList[index].Collapsed ? "fa fa-plus-square-o" : 'fa fa-minus-square-o';
         },
         initialCalculations: function () {
             var that = this;
-            this.feature.userstories.forEach(function (elem, index) {
+            this.feature.UserStoryList.forEach(function (elem, index) {
                 that.progress(index);
             });
             this.calculated = true;
         },
         progress: function (index) {
-            var value = Math.round(Math.random() * 100);
-            if (!this.calculated) {
-                this.feature.userstories[index].status = value;
-                this.$emit('update', { featureId: this.feature.id, userstory: this.feature.userstories[index] });
-            }
-            return value;
-            // return this.feature.userstories[index].tasks.forEach(function(task) { /* TODO: Calculate done tasks */ })
+            //var value = Math.round(Math.random() * 100); 
+            //if (!this.calculated) {
+            //    this.feature.UserStoryList[index].status = value;
+            //    this.$emit('update', { featureId: this.feature.id, userstory: this.feature.UserStoryList[index] });
+            //}
+            //return value;
+            var tasksDone = 0;
+            //alert(JSON.stringify(this.feature.UserStoryList[index].TaskList));
+            this.feature.UserStoryList[index].TaskList.forEach(function (task) { if (task.TaskState == 4) { tasksDone++; } });
+            var progress = (tasksDone / Math.max(this.feature.UserStoryList[index].TaskList.length, 1)) * 100;
+            return progress.toFixed(0);
+            
         }
     },
     computed: {
         draggableOptions: function() {
             return {
                 group: 'userstories',
-                ghostClass: 'ghost'
+                delay: 100
             }
         }
     }
@@ -140,40 +191,43 @@ Vue.component('userstories', {
 Vue.component('feature', {
     props: ['feature', 'index'],
     methods: {
+        select: function (event, index) {
+            var selection = this.feature.Selected;
+            Events.$emit('unselectAll', event);
+            event.stopPropagation();          
+            this.feature.Selected = !selection;
+            MFilesAgile.methods.openMetadataCard(this.feature.InternalId, 106);
+        },
         collapse: function (event, index) {
             event.stopPropagation();
-            console.log(this.feature);
-            this.feature.collapsed = !this.feature.collapsed;
+            this.feature.Collapsed = !this.feature.Collapsed;
         },
         collapseClasses: function (index) {
-            return this.feature.collapsed ? "fa fa-plus-square-o" : 'fa fa-minus-square-o';
+            return this.feature.Collapsed ? "fa fa-plus-square-o" : 'fa fa-minus-square-o';
         },
         storypointSum: function (index) {
             var sum = 0;
-            this.feature.userstories.forEach(function (story) { sum += story.points; });
+            this.feature.UserStoryList.forEach(function (story) { sum += story.StoryPoints; });
             return sum;
         },
         progress: function (index) {
+
             var sum = 0;
-            this.feature.userstories.forEach(function (story) { sum += story.status ? story.status : 0 });
-            return parseFloat(sum / this.feature.userstories.length).toFixed(0); 
+            this.feature.UserStoryList.forEach(function (story) {
+                sum += story.TaskList.reduce(function (taskA, taskB) {
+                    return taskA + (taskB.TaskState == 4 ? 1 : 0);
+                }, 0) / Math.max(story.TaskList.length, 1)
+            });
+            return parseFloat((sum / this.feature.UserStoryList.length) * 100).toFixed(0);
         },
         featureUpdate: function (event) {
 
         }
     },
-    computed: {
-        draggableOptions: function() {
-            return {
-                group: 'features',
-                ghostClass: 'hidden'
-            }
-        }
-    },
-    template: '<li draggable="true" :class="{ feature: true, collapsable: true, collapsed: feature.collapsed, selected: feature.selected }" id="story"> \
+    template: '<li draggable="true" @click="select" :class="{ feature: true, collapsable: true, collapsed: feature.Collapsed, selected: feature.Selected }" id="story"> \
                     <i @click="collapse($event, index)" :class="collapseClasses(index)" aria-hidden="true"></i> \
-                    <span class="group">FEATURE-{{ feature.id }}</span>  \
-                    <span class="title">{{ feature.name }}</span> \
+                    <span class="group"></span>  \
+                    <span class="title">{{ feature.NameOrTitle }}</span> \
                     <progressbar class="" v-bind:value="progress(index)"></progressbar> \
                     <span class="effort">{{ storypointSum(index) }}</span> \
                     <userstories v-on:update="featureUpdate" v-bind:feature="feature"></userstories> \
@@ -189,35 +243,24 @@ Vue.component('features', {
     data: function () {
         return {
             // TODO: Move this to methods that is called when backlog is expanded
-            features: MFiles.methods.getFeatures(this.backlog.id),
+            features: [],
             lastSelection: null
         };
     },
+    created: function () {
+        Events.$on('backlogOpened', this.backlogOpened)
+        Events.$on('unselectAll', this.unselectAll)
+    },
     methods: {
+        unselectAll: function(event) {
+            this.features.forEach(function (feature) { feature.Selected = false; })
+        },
         collapse: function (event, index) {
             event.stopPropagation();
-            this.features[index].collapsed = !this.features[index].collapsed;
-        },
-        select: function (event, index) {
-            event.stopPropagation();
-            var selected = !this.features[index].selected;
-            if (!window.keyDown.ctrl) {
-                this.features.forEach(function(el) { el.selected = false })
-            }
-
-            if (window.keyDown.shift && this.lastSelection) {
-                var self = this;
-                var lastIndex = this.features.findIndex(function (el) { return el.id === self.lastSelection.id });
-                for (var i = Math.min(lastIndex, index) ; i < Math.max(lastIndex, index) ; ++i) {
-                    this.features[i].selected = true;
-                }
-            }
-
-            this.features[index].selected = selected;
-            this.lastSelection = this.features[index];
+            this.features[index].Collapsed = !this.features[index].Collapsed;
         },
         collapseClasses: function (index) {
-            return this.features[index].collapsed ? "fa fa-plus-square-o" : 'fa fa-minus-square-o';
+            return this.features[index].Collapsed ? "fa fa-plus-square-o" : 'fa fa-minus-square-o';
         },
         storypointSum: function (index) {
             var sum = 0;
@@ -225,20 +268,30 @@ Vue.component('features', {
             return sum;
         },
         progress: function (index) {
+            alert(JSON.stringify(this.userstories));
             var sum = 0;
-            this.features[index].userstories.forEach(function (story) { sum += story.status ? story.status : 0 });
+            this.features[index].userstories.forEach(function (story) { alert('story.Progress ' + story.Progress); sum += story.Progress ? story.Progress : 0 });
             return parseFloat(sum / this.features[index].userstories.length).toFixed(0); 
         },
         featureUpdate: function (event) {
             var featureIndex = this.features.findIndex(function (feature) { return feature.id == event.featureId });
             this.features[featureIndex].userstories.find(function (story) { return story.id === event.userstory.id }).status = event.userstory.status;
+        },
+        backlogOpened: function (backlogId) {
+            if (this.backlog.InternalId == backlogId && this.features.length == 0) {
+                this.features = MFilesAgile.methods.getFeatures(this.backlog.InternalId);
+
+            }
+        },
+        openMetadataCard: function () {
+            MFilesAgile.methods.openMetadataCard(106);
         }
     },
     computed: {
         draggableOptions: function() {
             return {
                 group: 'features',
-                ghostClass: 'hidden'
+                delay: 100,
             }
         }
     }
@@ -252,9 +305,9 @@ Vue.component('backlogs', {
                 <i class="fa fa-trophy effort"></i> \
             </h4> \
             <draggable class="backlogs planner" element="ul" v-model="backlogs" :options="draggableOptions"> \
-                <li @click="select($event, index)" v-for="(backlog, index) in backlogs" draggable="true" id="story" :class="{ backlog: true, collapsable: true, collapsed: backlog.collapsed, selected: backlog.selected }" > \
+                <li @click="select($event, index)" v-for="(backlog, index) in backlogs" draggable="true" id="story" :class="{ backlog: true, collapsable: true, collapsed: backlog.Collapsed, selected: backlog.Selected }" > \
                     <i @click="collapse($event, index)" :class="collapseClasses(index)" aria-hidden="true"></i> \ \
-                    <span class="title">{{ backlog.name }}</span> \
+                    <span class="title">{{ backlog.NameOrTitle }}</span> \
                     <span class="status" style="background-image:none;"></span> \
                     <span class="effort"></span> \
                     <features v-on:loaded="attachFeatures" v-bind:backlog="backlog"></features> \
@@ -263,37 +316,43 @@ Vue.component('backlogs', {
          </div>',
     data: function () { 
         return {
-            backlogs: MFiles.methods.getBacklogs(),
+            backlogs: [],
             lastSelection: null,
             header: 'Planner'
         }
     },
-    props: ['header'],
+    props: ['header', 'backlogtype'],
+    created: function() {
+        this.backlogs = MFilesAgile.methods.getBacklogs(this.backlogtype)
+    },
     methods: {
         collapse: function (event, index) {
             event.stopPropagation();
-            this.backlogs[index].collapsed = !this.backlogs[index].collapsed;
+            this.backlogs[index].Collapsed = !this.backlogs[index].Collapsed;
+            if (!this.backlogs[index].Collapsed) {
+                Events.$emit('backlogOpened', this.backlogs[index].InternalId);
+            }
         },
         select: function (event, index) {
-            var selected = !this.backlogs[index].selected;
+            var selected = !this.backlogs[index].Selected;
             if (!window.keyDown.ctrl) {
-                this.backlogs.forEach(function (el) { el.selected = false })
+                this.backlogs.forEach(function (el) { el.Selected = false })
             }
 
             if (window.keyDown.shift && this.lastSelection) {
                 var self = this;
                 var lastIndex = this.backlogs.findIndex(function (el) { return el.id === self.lastSelection.id });
                 for (var i = Math.min(lastIndex, index) ; i <= Math.max(lastIndex, index) ; ++i) {
-                    this.backlogs[i].selected = true;
+                    this.backlogs[i].Selected = true;
                 }
             }
             else {
-                this.backlogs[index].selected = selected;
+                this.backlogs[index].Selected = selected;
             }
             this.lastSelection = this.backlogs[index];
         },
         collapseClasses: function (index) {
-            return this.backlogs[index].collapsed ? "fa fa-caret-down" : 'fa fa-caret-up';
+            return this.backlogs[index].Collapsed ? "fa fa-caret-down" : 'fa fa-caret-up';
         },
         attachFeatures: function (sum) {
             var sum = 0;
@@ -306,19 +365,37 @@ Vue.component('backlogs', {
     computed: {
         draggableOptions: function () {
             return {
-                group: 'backlogs',
-                ghostClass: 'ghost'
+                group: 'backlogs'
             }
         }
     }
 });
 
+Vue.component('Sprints', {
+    template: 
+        '<div> \
+            <h4 class="content-header">{{ header }} \
+                <i class="fa fa-line-chart status"></i> \
+                <i class="fa fa-trophy effort"></i> \
+            </h4> \
+            <draggable class="backlogs planner" element="ul" v-model="backlogs" :options="draggableOptions"> \
+                <li @click="select($event, index)" v-for="(backlog, index) in backlogs" draggable="true" id="story" :class="{ backlog: true, collapsable: true, collapsed: backlog.Collapsed, selected: backlog.Selected }" > \
+                    <i @click="collapse($event, index)" :class="collapseClasses(index)" aria-hidden="true"></i> \ \
+                    <span class="title">{{ backlog.NameOrTitle }}</span> \
+                    <span class="status" style="background-image:none;"></span> \
+                    <span class="effort"></span> \
+                    <features v-on:loaded="attachFeatures" v-bind:backlog="backlog"></features> \
+                </li> \
+             </draggable> \
+         </div>',
+    prop: ['sprint'],
+
+
+})
 var app = new Vue({ 
     el: '#root',
     data: function () {
-        return { backlogs: MFiles.methods.getBacklogs() };
+        return { backlogs: MFilesAgile.methods.getBacklogs() };
     }
 })
-
-
-
+}
