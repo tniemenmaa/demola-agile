@@ -4,9 +4,9 @@
 <head>
     <meta charset="utf-8" />
     <title></title>
-    <link rel="stylesheet" href="font-awesome/css/font-awesome.min.css">
-    <link rel="stylesheet" href="bootstrap.min.css" />
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="Content/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="Content/bootstrap.min.css" />
+    <link rel="stylesheet" href="Content/style.css" />
 </head>
 <body>    
     <!-- Application root-->
@@ -16,14 +16,14 @@
     </div>
 
     <!-- Scripts -->
-    <script type="text/javascript" src="polyfill.min.js"></script>
-    <script type="text/javascript" src="vue.min.js"></script>
-    <script type="text/javascript" src="sortable.min.js"></script>
-    <script type="text/javascript" src="vuedraggable.min.js"></script>
-    <script type="text/javascript" src="jquery-3.1.1.min.js"></script>
-    <script type="text/javascript" src="jquery-ui.min.js"></script>
-    <script type="text/javascript" src="data-controller.js"></script>
-    <script type="text/javascript" src="planner.js"></script>
+    <script type="text/javascript" src="Scripts/lib/polyfill.min.js"></script>
+    <script type="text/javascript" src="Scripts/lib/vue.min.js"></script>
+    <script type="text/javascript" src="Scripts/lib/sortable.min.js"></script>
+    <script type="text/javascript" src="Scripts/lib/vuedraggable.min.js"></script>
+    <script type="text/javascript" src="Scripts/lib/jquery-3.1.1.min.js"></script>
+    <script type="text/javascript" src="Scripts/lib/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="Scripts/data-controller.js"></script>
+    <script type="text/javascript" src="Scripts/planner.js"></script>
 
     <script type="text/javascript">
         "use strict";
@@ -40,9 +40,7 @@
                 initPlanner();
             };
         }
-        if (useDummyData) {
-            // initPlanner();
-        }
+        
     </script>
 
     <!-- Alerts for debugging purposes, should use logger of some sort in production environment --> 
