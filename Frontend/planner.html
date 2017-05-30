@@ -11,7 +11,7 @@
 <body>    
     <!-- Application root-->
     <div id="root">
-        <backlogs class="backlog-column" id="left-column" v-bind:backlogtype="2" header="Sprint planner"></backlogs>
+        <sprints class="backlog-column" id="left-column" v-bind:backlogtype="2" header="Sprint planner"></sprints>
         <backlogs class="backlog-column" id="right-column" v-bind:backlogtype="1" header="Release planner"></backlogs>
     </div>
 
@@ -40,7 +40,7 @@
                 initPlanner();
             };
         }
-        
+        //initPlanner();
     </script>
 
     <!-- Alerts for debugging purposes, should use logger of some sort in production environment --> 

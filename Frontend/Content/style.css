@@ -44,20 +44,29 @@
     margin: 0;
     padding: 0;
     width: 100%;
+    background-color: #f8f8f8;
 }
 .planner li {
     width: 100%;
     background-color: #f8f8f8;
     list-style: none;
     margin: 0;
-    padding: 4px 0 4px  8px;
+    padding: 2px 0 2px  8px;
     box-sizing: border-box;
     background-image: url('treeline.png');
     background-repeat: no-repeat;
-    background-position-y: 3px;
+    background-position-y: -4px;
     line-height: 10pt;
+    display: block !important;
+}
+.planner li:first-child {
+    padding-top: 4px;
+    background-position-y: -2px;
 }
 
+.planner li:last-child {
+    padding-bottom: 4px;
+}   
 .effort {
     width: 80px;
     float: right;
@@ -124,6 +133,10 @@ h4 .effort, h4 .status {
     white-space: nowrap;
 }
 
+.planner li.locked > .title {
+    color: #888;
+}
+
 .backlog, .userstory, .feature, .sprint {
     cursor: pointer;
     overflow: hidden;
@@ -143,7 +156,7 @@ h4 .effort, h4 .status {
 .fa-plus-square-o, .fa-minus-square-o, .fa-circle-o, .fa-square-o {
     margin-left: 8px;
     vertical-align: top;
-    margin-top: 3px;
+    margin-top: 2px;
 }
 
 .fa-caret-up, .fa-caret-down {
@@ -173,6 +186,11 @@ li.userstory {
 .userstory > .group {
     background: #64b7eb;
 }
+
+.userstory > .feature-group {
+    background: #6eae6f;
+}
+
 .task > .group {
     background: #b891bf;
 }
