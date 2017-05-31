@@ -80,9 +80,15 @@
     height: 20px;
 }
 @media (max-width: 1101px) {
-    .planner li.userstory .title {
+    .planner li.userstory > .title {
         width: 31% !important;
     }
+
+    .planner .sprint-userstories li.userstory > .title {
+        width: 22% !important
+    }
+
+
 }
 .userstory .status {
     margin-right: 25px;
@@ -95,10 +101,6 @@ h4 .effort, h4 .status {
 
 .planner li:hover {
     /*background-color: rgba(229, 243, 255, 1);*/
-}
-
-.planner li:first-child:not(.backlog) {
-    margin-top: 8px;
 }
 
 .planner li:last-child {
@@ -140,10 +142,6 @@ h4 .effort, h4 .status {
 .backlog, .userstory, .feature, .sprint {
     cursor: pointer;
     overflow: hidden;
-}
-
-.task {
-    margin-bottom: 8px !important;
 }
 
 .backlog {

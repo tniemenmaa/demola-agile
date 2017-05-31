@@ -352,7 +352,7 @@ Vue.component( "backlogs", {
 
 Vue.component( "userstories", {
     template:
-        '<draggable class="userstories" element="ul" v-model="feature.UserStoryList" :options="draggableOptions" @remove="dragRemove" @start="dragStart"> \
+        '<draggable class="userstories" element="ul" v-model="feature.UserStoryList" :options="draggableOptions" @remove="dragRemove" @add="dragAdd"> \
             <li @click="select( $event, index )" v-for="( userstory, index ) in feature.UserStoryList" draggable="true" :class="{ userstory: true, collapsable: true, collapsed: userstory.Collapsed, selected: userstory.Selected, locked: userstory.SprintId }" id="story"> \
                 <i @click="collapse( $event, index )" :class="collapseClasses( index )" aria-hidden="true"></i> \
                 <span class="group">{{ userstory.UserStoryId }}</span>  \
@@ -371,7 +371,8 @@ Vue.component( "userstories", {
     },
     created: function () {
         // Subscrible to event bus to listen to unselectAll events
-        Events.$on( "unselectAll", this.unselectAll );
+        Events.$on("unselectAll", this.unselectAll);
+        Events.$on("userstoryAdded", this.userstoryAdded);
     },
     mounted: function () {
         this.initialCalculations();
@@ -421,12 +422,22 @@ Vue.component( "userstories", {
             return progress.toFixed( 0 );
 
         },
-        dragStart: function (evnt) {
-
-        },
         dragRemove: function (evnt) {
             this.feature.UserStoryList.splice(evnt.oldIndex, 0, evnt.item._underlying_vm_);
+        },
+        dragAdd: function (evnt) {
+            let item = evnt.item._underlying_vm_;
+            item.FeatureId = this.feature.FeatureId;
+            item.FeatureTitle = this.feature.NameOrTitle;
+            Events.$emit("userstoryAdded", evnt.item._underlying_vm_, this.feature.FeatureId);
+        },
+        userstoryAdded: function (item, featureId) {
+            if (this.feature.FeatureId === featureId) return;
+            // If this collection contains the same item then remove it
+            console.log('remove item ' + item.InternalId + ' from ' + this.feature.InternalId);
+            this.feature.UserStoryList = this.feature.UserStoryList.filter(function (userstory) { return userstory.InternalId !== item.InternalId });
         }
+
     },
     computed: {
         draggableOptions: function () {
@@ -530,7 +541,7 @@ Vue.component("sprint-userstories", {
 
         },
         dragAdd: function (evnt) {
-            console.log('add item to sprint');
+            // Set sprint id accordingly
             evnt.item._underlying_vm_.SprintId = this.backlog.InternalId;
         }
     },
