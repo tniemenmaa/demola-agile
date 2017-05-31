@@ -352,8 +352,8 @@ Vue.component( "backlogs", {
 
 Vue.component( "userstories", {
     template:
-        '<draggable class="userstories" element="ul" v-model="feature.UserStoryList" :options="draggableOptions" @remove="dragRemove" @add="dragAdd"> \
-            <li @click="select( $event, index )" v-for="( userstory, index ) in feature.UserStoryList" draggable="true" :class="{ userstory: true, collapsable: true, collapsed: userstory.Collapsed, selected: userstory.Selected, locked: userstory.SprintId }" id="story"> \
+        '<draggable :data-featureid="feature.InternalId" class="userstories" element="ul" v-model="feature.UserStoryList" :options="draggableOptions" @remove="dragRemove" @add="dragAdd"> \
+            <li :data-featureid="feature.InternalId" @click="select( $event, index )" v-for="( userstory, index ) in feature.UserStoryList" draggable="true" :class="{ userstory: true, collapsable: true, collapsed: userstory.Collapsed, selected: userstory.Selected, locked: userstory.SprintId }" id="story"> \
                 <i @click="collapse( $event, index )" :class="collapseClasses( index )" aria-hidden="true"></i> \
                 <span class="group">{{ userstory.UserStoryId }}</span>  \
                 <span class="title">{{ userstory.NameOrTitle }}</span> \
@@ -367,6 +367,7 @@ Vue.component( "userstories", {
     data: function () {
         return {
             calculated: false,
+            removeAfterDropFlag: false
         }
     },
     created: function () {
@@ -423,19 +424,24 @@ Vue.component( "userstories", {
 
         },
         dragRemove: function (evnt) {
+            if (this.removeAfterDropFlag) {
+                this.removeAfterDropFlag = false;
+                return;
+            }
             this.feature.UserStoryList.splice(evnt.oldIndex, 0, evnt.item._underlying_vm_);
         },
         dragAdd: function (evnt) {
             let item = evnt.item._underlying_vm_;
             item.FeatureId = this.feature.FeatureId;
             item.FeatureTitle = this.feature.NameOrTitle;
-            Events.$emit("userstoryAdded", evnt.item._underlying_vm_, this.feature.FeatureId);
+            var fromFeature = evnt.from.attributes["data-featureid"];
+            Events.$emit("userstoryAdded", evnt.item._underlying_vm_, fromFeature.value);
         },
         userstoryAdded: function (item, featureId) {
-            if (this.feature.FeatureId === featureId) return;
-            // If this collection contains the same item then remove it
-            console.log('remove item ' + item.InternalId + ' from ' + this.feature.InternalId);
-            this.feature.UserStoryList = this.feature.UserStoryList.filter(function (userstory) { return userstory.InternalId !== item.InternalId });
+            if (this.feature.InternalId != featureId) {
+                return;
+            }
+            this.removeAfterDropFlag = true;
         }
 
     },
